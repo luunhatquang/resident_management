@@ -29,8 +29,8 @@ class Resident(BaseModel):
     ]
     relationship = models.CharField(max_length=20, choices=RELATIONSHIP_CHOICES, default='tenant', verbose_name="Quan hệ với chủ hộ")
     
-    building = models.ForeignKey(Building, on_delete=models.PROTECT, related_name='residents', verbose_name="Tòa nhà", null=True, blank=True)
-    room = models.ForeignKey(Room, on_delete=models.PROTECT, related_name='residents', verbose_name="Căn hộ", null=True, blank=True)
+    building = models.ForeignKey('building.Building', on_delete=models.PROTECT, related_name='residents', verbose_name="Tòa nhà", null=True, blank=True)
+    room = models.ForeignKey('building.Room', on_delete=models.PROTECT, related_name='residents', verbose_name="Căn hộ", null=True, blank=True)
     class Meta:
         db_table = "resident"
         verbose_name = "Cư dân"
