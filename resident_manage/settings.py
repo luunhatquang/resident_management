@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     "resident_manage.apps.notification",             
     "resident_manage.apps.contract",                 
     "resident_manage.apps.building",                  
-    "resident_manage.apps.invoice",                  
+    "resident_manage.apps.invoice",     
+    "resident_manage.apps.accounts",
 ]
 
 MIDDLEWARE = [
@@ -156,3 +157,10 @@ SPECTACULAR_SETTINGS = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/"    
+LOGOUT_REDIRECT_URL = "/login/"    

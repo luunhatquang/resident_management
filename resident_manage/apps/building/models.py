@@ -28,10 +28,12 @@ class Room(BaseModel):
     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms', verbose_name='Tòa nhà')
     floor_number = models.PositiveIntegerField(verbose_name="Số tầng")
     room_number = models.CharField(max_length=10, verbose_name="Số phòng")
+    room_area = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Diện tích phòng")
     
     TYPE_STATUS = [
         ('available', 'Đang trống'),
-        ('unavailable', 'Không còn trống')
+        ('unavailable', 'Không còn trống'),
+        ('maintenance', 'Bảo trì')
     ]
     status = models.CharField(max_length=12, choices=TYPE_STATUS, default='available', verbose_name="Trạng thái")
     
@@ -49,3 +51,7 @@ class Room(BaseModel):
     
     def __str__(self):
         return f"{self.building.name} - Tầng {self.floor_number} - Phòng {self.room_number}"
+        
+    @property
+    def active_contract(self):
+        return self.contracts.filter(status__in=['active', 'will_expire']).first()

@@ -3,6 +3,7 @@ from resident_manage.core.models.base import BaseModel
 from resident_manage.apps.resident.models import Resident
 from resident_manage.apps.building.models import Room
 
+
 class Contract(BaseModel):
     contract_id = models.CharField(max_length=50, unique=True, verbose_name="Mã hợp đồng")
     
@@ -26,6 +27,7 @@ class Contract(BaseModel):
         ('expired', 'Đã hết hạn'),
         ('terminated', 'Đã chấm dứt'),
         ('rejected', 'Từ chối'),
+        ('will_expire', 'Sắp hết hạn'),
     ]
     status = models.CharField(max_length=12, choices=STATUS_CONTRACT, verbose_name="Trạng thái", default='pending')
     
@@ -37,3 +39,15 @@ class Contract(BaseModel):
     
     def __str__(self):
         return f"{self.contract_id} - {self.resident.first_name} {self.resident.last_name}"
+
+    @property
+    def is_expiring(self):
+        """Kiểm tra nếu hợp đồng còn dưới 30 ngày hoặc ở trạng thái sắp hết hạn"""
+        if self.status == 'will_expire':
+            return True
+        if self.end_date:
+            from django.utils import timezone
+            from datetime import timedelta
+            diff = self.end_date - timezone.now().date()
+            return 0 <= diff.days <= 30
+        return False

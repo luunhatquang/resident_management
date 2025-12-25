@@ -12,7 +12,7 @@ class BuildingAdmin(admin.ModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-    list_display = ['room_id', 'building', 'floor_number', 'room_number', 'status', 'type_listing', 'created_at']
+    list_display = ['room_id', 'building', 'floor_number', 'room_number', 'status', 'type_listing', 'created_at', 'room_area']
     list_filter = ['status', 'type_listing', 'building', 'floor_number']
     search_fields = ['room_id', 'room_number']
     ordering = ['building', 'floor_number', 'room_number']

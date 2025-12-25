@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân - RMS System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+</head>
+<body>
+
+    <!-- Sidebar (Copy from contracts.html) -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-building"></i> RMS System
+        </div>
+        
+        <a href="{% url 'home' %}" class="menu-item">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
+        </div>
+        <div class="menu-item">
+            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+        </div>
+        <a href="{% url 'contracts' %}" class="menu-item">
+            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+        </div>
+        <div class="menu-item">
+            <i class="fa-solid fa-bell"></i> Thông báo
+        </div>
+        
+        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header>
+            <div class="header-title">Hồ sơ cá nhân</div>
+            <div class="user-profile">
+                <a href="{% url 'profile' %}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 14px;">
+                            {{ user.get_full_name|default:user.username }}
+                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">@{{ user.username }}</div>
+                    </div>
+                    {% if user.profile and user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </header>
+
+        <div class="dashboard-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">
+                        <i class="fa-solid fa-check-circle"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar-wrapper">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" class="profile-avatar">
+                        {% else %}
+                            <div class="profile-avatar" style="display: flex; align-items: center; justify-content: center; font-size: 48px; color: #cbd5e1;">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        {% endif %}
+                        <div class="profile-info-header">
+                            <h2 style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ user.get_full_name|default:user.username }}</h2>
+                            <p style="color: rgba(255,255,255,0.8);">Hệ thống quản lý RMS</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-user-gear"></i> Thông tin cơ bản
+                            </div>
+                            <div class="profile-grid">
+                                <div class="form-group">
+                                    <label>Họ</label>
+                                    <input type="text" name="last_name" value="{{ u_form.last_name.value|default:'' }}" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tên</label>
+                                    <input type="text" name="first_name" value="{{ u_form.first_name.value|default:'' }}" class="form-control">
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label>Email</label>
+                                    <input type="email" name="email" value="{{ u_form.email.value|default:'' }}" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-address-card"></i> Thông tin bổ sung
+                            </div>
+                            <div class="profile-grid">
+                                <div class="form-group">
+                                    <label>Số điện thoại</label>
+                                    <input type="text" name="phone_number" value="{{ p_form.phone_number.value|default:'' }}" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ảnh đại diện</label>
+                                    <input type="file" name="avatar" class="form-control" style="padding: 8px;">
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label>Địa chỉ</label>
+                                    <textarea name="address" class="form-control" rows="3">{{ p_form.address.value|default:'' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
+                            <button type="submit" class="btn-save">
+                                <i class="fa-solid fa-save"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

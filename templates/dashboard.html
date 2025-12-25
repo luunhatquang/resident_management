@@ -18,41 +18,69 @@
             <i class="fa-solid fa-building"></i> RMS System
         </div>
         
-        <div class="menu-item active">
+        <a href="{% url 'dashboard' %}" class="menu-item active">
             <i class="fa-solid fa-chart-pie"></i> Dashboard
-        </div>
+        </a>
         <div class="menu-item">
             <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
         </div>
         <div class="menu-item">
             <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
         </div>
-        <div class="menu-item">
+        <a href="{% url 'contracts' %}" class="menu-item">
             <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
         </div>
         <div class="menu-item">
             <i class="fa-solid fa-bell"></i> Thông báo
         </div>
-        <div class="menu-item" style="margin-top: auto; color: #ef4444;">
+        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
             <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-        </div>
+        </a>
     </div>
 
     <!-- Main Content -->
     <div class="main-content">
         <!-- Header -->
         <header>
-            <div class="header-title">Tổng quan Tòa nhà A</div>
+            <div class="header-title">
+                <i class="fa-solid fa-building-circle-check"></i>
+                Tổng quan {{ building_name }}
+            </div>
+            
+            <!-- Selector Tòa nhà -->
+            <div style="margin-left: 20px;">
+                <select onchange="window.location.href='?building='+this.value" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; outline: none;">
+                    <option value="Toàn bộ tòa nhà" {% if building_name == "Toàn bộ tòa nhà" %}selected{% endif %}>Toàn bộ tòa nhà</option>
+                    {% for b in buildings %}
+                        <option value="{{ b.name }}" {% if b.name == active_building.name and building_name != "Toàn bộ tòa nhà" %}selected{% endif %}>{{ b.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="user-profile">
                 <div class="notification-bell">
                     <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
                     <div class="badge">3</div>
                 </div>
-                <div style="text-align: right;">
-                    <div style="font-weight: bold; font-size: 14px;">Admin User</div>
-                    <div style="font-size: 12px; color: #64748b;">Quản lý</div>
-                </div>
-                <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%;"></div>
+                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 14px;">
+                            {{ user.get_full_name|default:user.username }}
+                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
+                    </div>
+                    {% if user.profile and user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
+                        </div>
+                    {% endif %}
+                </a>
             </div>
         </header>
 
@@ -63,31 +91,37 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-title">Tổng số căn hộ</div>
-                    <div class="stat-value" id="stat-total">--</div>
+                    <div class="stat-value" id="stat-total">{{ room_total }}</div>
                     <div style="color: var(--primary-color); font-size: 12px; margin-top: 5px;">
-                        <i class="fa-solid fa-arrow-up"></i> Tòa nhà A & B
+                        <i class="fa-solid fa-building"></i> {{ building_name }}
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-title">Đã cho thuê/Bán</div>
-                    <div class="stat-value" style="color: var(--status-occupied);" id="stat-occupied">--</div>
+                    <div class="stat-value" style="color: var(--status-occupied);" id="stat-occupied">{{ room_occupied_count }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-title">Còn trống</div>
-                    <div class="stat-value" style="color: var(--status-empty);" id="stat-empty">--</div>
+                    <div class="stat-value" style="color: var(--status-empty);" id="stat-empty">{{ room_empty_count }}</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-title">Doanh thu tháng này</div>
-                    <div class="stat-value">1.2 Tỷ</div>
-                    <div style="color: var(--status-empty); font-size: 12px; margin-top: 5px;">
-                        <i class="fa-solid fa-arrow-up"></i> +5% so với tháng trước
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-title">Doanh thu tháng này</div>
+            <div class="stat-value">{{ revenue|floatformat:0 }} VNĐ</div>
+            <div style="color: {% if revenue_growth >= 0 %}#10b981{% else %}#ef4444{% endif %}; font-size: 12px; margin-top: 5px;">
+                <i class="fa-solid {% if revenue_growth >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}"></i> 
+                {{ revenue_growth }}% so với tháng trước
+            </div>
+        </div>
             </div>
 
             <!-- Task 5: Building Map -->
             <div class="section-title">
-                <span><i class="fa-solid fa-map"></i> Sơ đồ căn hộ trực quan</span>
+                <span>
+                    <i class="fa-solid fa-map"></i> Sơ đồ căn hộ trực quan 
+                    {% if building_name == "Toàn bộ tòa nhà" and active_building %}
+                        ({{ active_building.name }})
+                    {% endif %}
+                </span>
                 
                 <div class="building-legend">
                     <div class="legend-item">
@@ -106,9 +140,27 @@
             </div>
 
             <div class="building-container" id="building-map">
-                <div style="text-align: center; padding: 40px; color: #64748b;">
-                    <i class="fa-solid fa-spinner fa-spin"></i> Đang tải sơ đồ...
+                {% for floor in floors %}
+                <div class="floor-row">
+                    <div class="floor-label">Tầng {{ floor.number }}</div>
+                    <div class="apartments-list">
+                        {% for room in floor.rooms %}
+                    <div class="apartment-box status-{{ room.status }}" onclick="openRoomDetail({{ room.id }})">
+                        <div class="apt-number">{{ room.room_number }}</div>
+                        <div class="apt-status-text">{{ room.get_status_display }}</div>
+                        
+                        {% if room.active_contract and room.active_contract.is_expiring %}
+                            <div class="warning-icon" title="Sắp hết hạn hợp đồng">!</div>
+                        {% endif %}
+                    </div>
+                        {% endfor %}
+                    </div>
                 </div>
+                {% empty %}
+                <div style="text-align: center; padding: 40px; color: #64748b;">
+                    <i class="fa-solid fa-circle-info"></i> Không có dữ liệu căn hộ cho tòa nhà này.
+                </div>
+                {% endfor %}
             </div>
 
         </div>

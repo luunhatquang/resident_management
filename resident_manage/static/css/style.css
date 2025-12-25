@@ -106,7 +106,7 @@ header {
     padding: 8px;
 }
 
-.badge {
+.notification-bell .badge {
     position: absolute;
     top: 0;
     right: 0;

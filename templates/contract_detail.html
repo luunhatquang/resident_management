@@ -1,0 +1,240 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết hợp đồng {{ contract.contract_id }} - RMS System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
+    <style>
+        .detail-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 25px;
+        }
+        .detail-header h2 {
+            font-size: 20px;
+            color: var(--primary-color);
+            margin: 0;
+        }
+        .info-section {
+            margin-bottom: 30px;
+        }
+        .info-section h3 {
+            font-size: 16px;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-section h3 i {
+            color: var(--primary-color);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .info-item label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .info-item span {
+            font-size: 15px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+        .status-badge-large {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .detail-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-building"></i> RMS System
+        </div>
+        
+        <a href="{% url 'home' %}" class="menu-item">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
+        </div>
+        <div class="menu-item">
+            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+        </div>
+        <a href="{% url 'contracts' %}" class="menu-item active">
+            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+        </div>
+        <div class="menu-item">
+            <i class="fa-solid fa-bell"></i> Thông báo
+        </div>
+        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <a href="{% url 'contracts' %}" style="text-decoration: none; color: inherit;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                Chi tiết hợp đồng
+            </div>
+            <div class="user-profile">
+                <div class="notification-bell">
+                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
+                    <div class="badge">3</div>
+                </div>
+                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 14px;">
+                            {{ user.get_full_name|default:user.username }}
+                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
+                    </div>
+                    {% if user.profile and user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </header>
+
+        <!-- Detail Body -->
+        <div class="dashboard-container">
+            <div class="detail-container">
+                <div class="detail-header">
+                    <h2>Mã HĐ: {{ contract.contract_id }}</h2>
+                    <span class="status-badge-large status-{{ contract.status }}">
+                        {{ contract.get_status_display }}
+                    </span>
+                </div>
+
+                <!-- Section: Thông tin chung -->
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-circle-info"></i> Thông tin chung</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Loại hợp đồng</label>
+                            <span>
+                                {% if contract.contract_type == 'rent' %}Hợp đồng thuê{% else %}Hợp đồng mua bán{% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày ký</label>
+                            <span>{{ contract.sign_date|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày bắt đầu</label>
+                            <span>{{ contract.start_date|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Ngày kết thúc</label>
+                            <span>{{ contract.end_date|date:"d/m/Y"|default:"Vô thời hạn" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Đối tượng & Căn hộ -->
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-user-tag"></i> Đối tượng & Căn hộ</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Cư dân</label>
+                            <span>{{ contract.resident.last_name }} {{ contract.resident.first_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>CMND/CCCD</label>
+                            <span>{{ contract.resident.citizen_id }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Tòa nhà</label>
+                            <span>{{ contract.room.building.name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Số phòng</label>
+                            <span>{{ contract.room.room_number }} (Tầng {{ contract.room.floor_number }})</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Giá trị & Thanh toán -->
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-money-bill-wave"></i> Giá trị & Thanh toán</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Tổng giá trị</label>
+                            <span style="color: var(--primary-color); font-weight: bold; font-size: 18px;">
+                                {{ contract.total_price|floatformat:0 }} VNĐ
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <label>Giá thuê/tháng</label>
+                            <span>{{ contract.price_per_month|floatformat:0|default:"--" }} VNĐ</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Tiền đặt cọc</label>
+                            <span>{{ contract.deposit|floatformat:0|default:"0" }} VNĐ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-actions">
+                    <a href="{% url 'contracts' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Quay lại</a>
+                    <a href="{% url 'contract_edit' pk=contract.id %}" class="btn-primary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-edit"></i> Chỉnh sửa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

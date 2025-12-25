@@ -63,6 +63,7 @@ body {
     align-items: center;
     gap: 12px;
     font-weight: 500;
+    text-decoration: none;
 }
 
 .menu-item:hover, .menu-item.active {
@@ -106,7 +107,7 @@ header {
     padding: 8px;
 }
 
-.badge {
+.notification-bell .badge {
     position: absolute;
     top: 0;
     right: 0;
@@ -245,13 +246,13 @@ header {
 }
 
 /* Status Styling */
-.status-empty {
+.status-empty, .status-available {
     border-color: var(--status-empty);
     color: var(--status-empty);
     background-color: #f0fdf4;
 }
 
-.status-occupied {
+.status-occupied, .status-unavailable {
     border-color: var(--status-occupied);
     color: var(--status-occupied);
     background-color: #fef2f2;
