@@ -127,6 +127,12 @@
                         <button class="filter-btn" onclick="filterRooms('maintenance')">
                             Bảo trì
                         </button>
+
+                        <a href="{% url 'create_room' %}?building={{ building.building_id }}" 
+                            class="btn-primary" 
+                            style="margin-left: auto; text-decoration: none; padding: 8px 16px; font-size: 14px;">
+                                <i class="fa-solid fa-plus"></i> Thêm phòng
+                            </a>
                     </div>
 
                     <div class="table-container">

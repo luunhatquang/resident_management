@@ -14,6 +14,8 @@ function applyFilters() {
     
     if (statusFilter) params.set('status', statusFilter);
     if (searchText) params.set('search', searchText);
+
+
     
     // Redirect
     const url = params.toString() ? `?${params.toString()}` : window.location.pathname;
@@ -31,7 +33,7 @@ function clearFilters() {
  * View building detail
  */
 function viewBuilding(buildingId) {
-    window.location.href = `/buildings/${buildingId}/`;
+    window.location.href = `/buildings/detail/${buildingId}/`;
 }
 
 /**
@@ -45,14 +47,14 @@ function editBuilding(buildingId) {
  * Open Add Building Modal/Page
  */
 function openAddModal() {
-    window.location.href = '/buildings/create/';
+    window.location.href = '/buildings/create';
 }
 
 /**
  * View room detail
  */
 function viewRoom(roomId) {
-    window.location.href = `/rooms/${roomId}/`;
+    window.location.href = `/rooms/detail/${roomId}/`;
 }
 
 /**
