@@ -10,7 +10,6 @@ class BuildingCreateForm(ModelForm):
 class RoomCreateForm(ModelForm):
     class Meta:
         model = Room
-        fields = '__all__'
         exclude = ['room_residents', 'owner']
     
 class BuildingUpdateForm(ModelForm):

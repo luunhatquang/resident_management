@@ -21,9 +21,9 @@
         <a href="{% url 'dashboard' %}" class="menu-item active">
             <i class="fa-solid fa-chart-pie"></i> Dashboard
         </a>
-        <div class="menu-item">
+        <a href="{% url 'get_all_buildings' %}" class="menu-item">
             <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
-        </div>
+        </a>
         <div class="menu-item">
             <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
         </div>
@@ -189,9 +189,9 @@
             </div>
 
             <div style="margin-top: 20px; text-align: right;">
-                <button style="padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                <a id="btn-update-profile" href="{% url 'profile' %}" style="padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block;">
                     <i class="fa-solid fa-pen-to-square"></i> Cập nhật hồ sơ
-                </button>
+                </a>
             </div>
         </div>
     </div>
