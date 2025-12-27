@@ -1,12 +1,9 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ action }} Hợp đồng - RMS System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{% block title %}{{ action }} Hợp đồng{% endblock %}
+
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
     <style>
         .form-container {
@@ -63,113 +60,46 @@
             border-top: 1px solid var(--border);
         }
     </style>
-</head>
-<body>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-building"></i> RMS System
-        </div>
-        
-        <a href="{% url 'home' %}" class="menu-item">
-            <i class="fa-solid fa-chart-pie"></i> Dashboard
-        </a>
-        <a href="{% url 'get_all_buildings' %}" class="menu-item">
-            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
-        </div>
-        <a href="{% url 'contracts' %}" class="menu-item active">
-            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
-        </div>
-        <div class="menu-item">
-            <i class="fa-solid fa-bell"></i> Thông báo
-        </div>
-        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
-            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-        </a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <div class="header-title">
-                <a href="{% url 'contracts' %}" style="text-decoration: none; color: inherit;">
+{% block header_icon %}
+<a href="{% url 'contracts' %}" style="text-decoration: none; color: inherit; margin-right: 10px;">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
-                {{ action }} Hợp đồng
-            </div>
-            <div class="user-profile">
-                <div class="notification-bell">
-                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
-                    <div class="badge">3</div>
-                </div>
-                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
-                    <div style="text-align: right;">
-                        <div style="font-weight: bold; font-size: 14px;">
-                            {{ user.get_full_name|default:user.username }}
-                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
-                        </div>
-                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
-                    </div>
-                    {% if user.profile and user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
-                    {% else %}
-                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
-                        </div>
-                    {% endif %}
-                </a>
-            </div>
-        </header>
+<i class="fa-solid fa-file-{{ 'pen' if 'Chỉnh sửa' in action else 'plus' }}"></i>
+{% endblock %}
+{% block header_title %}{{ action }} Hợp đồng{% endblock %}
 
-        <!-- Form Body -->
-        <div class="dashboard-container">
+{% block content %}
             <div class="form-container">
-                <form method="post" novalidate>
+    <form method="POST">
                     {% csrf_token %}
-                    
-                    {% if form.non_field_errors %}
-                    <div style="background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        {% for error in form.non_field_errors %}
-                            <p style="margin: 4px 0 0 0;">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
                     <div class="form-grid">
                         {% for field in form %}
-                        <div class="form-group {% if field.name == 'notes' %}full-width{% endif %}">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="form-group {% if field.name == 'note' %}full-width{% endif %}">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}*{% endif %}
+                    </label>
                             {{ field }}
                             {% if field.errors %}
-                                {{ field.errors }}
-                            {% endif %}
-                            {% if field.help_text %}
-                                <small style="color: #64748b; font-size: 12px;">{{ field.help_text }}</small>
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
                             {% endif %}
                         </div>
                         {% endfor %}
                     </div>
 
                     <div class="form-actions">
-                        <a href="{% url 'contracts' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy bỏ</a>
+            <a href="{% url 'contracts' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy</a>
                         <button type="submit" class="btn-primary">
-                            <i class="fa-solid fa-save"></i> Lưu thông tin
+                <i class="fa-solid fa-{% if 'Chỉnh sửa' in action %}save{% else %}check{% endif %}"></i> 
+                {% if 'Chỉnh sửa' in action %}Lưu thay đổi{% else %}Tạo hợp đồng{% endif %}
                         </button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-
-</body>
-</html>
-
+{% endblock %}

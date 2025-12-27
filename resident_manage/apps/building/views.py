@@ -85,6 +85,10 @@ def createBuilding(request):
         form = BuildingForm(request.POST)
         
         if form.is_valid():
+<<<<<<< HEAD
+            form.save()     
+            return redirect('get_all_buildings')
+=======
             try:
                 # Lưu dữ liệu vào Database
                 new_building = form.save()
@@ -104,6 +108,7 @@ def createBuilding(request):
             messages.error(request, 'Vui lòng kiểm tra lại thông tin nhập vào.')
 
     # 2. Xử lý khi người dùng truy cập trang (GET)
+>>>>>>> 38612e30d27a7795c95f4f88511d5da09e8cf800
     else:
         form = BuildingForm()
 

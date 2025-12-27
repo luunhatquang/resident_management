@@ -163,4 +163,22 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"    
-LOGOUT_REDIRECT_URL = "/login/"    
+LOGOUT_REDIRECT_URL = "/login/"   
+
+
+# --- CELERY CONFIG ---
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'  # Cần chạy Redis Server
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Ho_Chi_Minh'
+
+# Lập lịch chạy 00:00 hàng ngày
+from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {
+    'check-expiring-contracts-daily': {
+        'task': 'resident_manage.apps.notification.tasks.check_expiring_contracts',
+        'schedule': crontab(hour=0, minute=0),
+    },
+}
