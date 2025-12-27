@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Hóa đơn{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoices.css' %}">
+{% endblock %}
+
+{% block header_icon %}<i class="fa-solid fa-file-invoice-dollar"></i>{% endblock %}
+{% block header_title %}Quản lý Hóa đơn{% endblock %}
+
+{% block content %}
+<!-- Revenue Stats -->
+<div class="section-title" style="margin-bottom: 15px; margin-top: 0;">
+    <h3 style="font-size: 18px; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-chart-line" style="color: var(--primary-color);"></i>
+        Thống kê doanh thu
+    </h3>
+</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-title">Doanh thu tháng này</div>
+        <div class="stat-value" style="color: var(--primary-color);">{{ revenue_this_month|floatformat:0|default:"0" }} VNĐ</div>
+        <div style="color: {% if compare_revenue >= 0 %}#10b981{% else %}#ef4444{% endif %}; font-size: 12px; margin-top: 5px;">
+            <i class="fa-solid {% if compare_revenue >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}"></i> 
+            {{ compare_revenue|floatformat:1 }}% so với tháng trước
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Doanh thu năm nay</div>
+        <div class="stat-value" style="color: var(--status-empty);">{{ revenue_this_year|floatformat:0|default:"0" }} VNĐ</div>
+        <div style="color: {% if compare_revenue_year >= 0 %}#10b981{% else %}#ef4444{% endif %}; font-size: 12px; margin-top: 5px;">
+            <i class="fa-solid {% if compare_revenue_year >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}"></i> 
+            {{ compare_revenue_year|floatformat:1 }}% so với năm trước
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Tổng doanh thu</div>
+        <div class="stat-value">{{ revenue|floatformat:0|default:"0" }} VNĐ</div>
+    </div>
+</div>
+
+<!-- Invoice Stats -->
+<div class="section-title" style="margin-bottom: 15px; margin-top: 30px;">
+    <h3 style="font-size: 18px; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-file-invoice" style="color: var(--primary-color);"></i>
+        Thống kê hóa đơn
+    </h3>
+</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-title">Tổng hóa đơn</div>
+        <div class="stat-value">{{ invoice_total|default:"0" }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Đã thanh toán</div>
+        <div class="stat-value" style="color: var(--status-empty);">{{ invoice_paid|default:"0" }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Chưa thanh toán</div>
+        <div class="stat-value" style="color: var(--status-maintenance);">{{ invoice_unpaid|default:"0" }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Quá hạn</div>
+        <div class="stat-value" style="color: var(--status-occupied);">{{ invoice_overdue|default:"0" }}</div>
+    </div>
+</div>
+
+<!-- Filters & Actions -->
+<div class="section-header">
+    <div class="filters">
+        <select id="filter-status" class="filter-select" onchange="applyFilters()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="paid">Đã thanh toán</option>
+            <option value="unpaid">Chưa thanh toán</option>
+            <option value="overdue">Quá hạn</option>
+        </select>
+        
+        <select id="filter-service" class="filter-select" onchange="applyFilters()">
+            <option value="">Tất cả loại dịch vụ</option>
+            <option value="rent">Tiền thuê phòng</option>
+            <option value="electricity">Điện</option>
+            <option value="water">Nước</option>
+            <option value="internet">Internet</option>
+            <option value="maintenance">Bảo trì</option>
+            <option value="other">Khác</option>
+        </select>
+        
+        <input type="text" id="search-input" class="search-input" 
+               placeholder="🔍 Tìm mã hóa đơn, phòng..." 
+               onkeypress="if(event.key==='Enter') applyFilters()">
+        
+        <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
+            <i class="fa-solid fa-search"></i>
+        </button>
+        
+        {% if search_keyword or filter_status or filter_service %}
+        <button class="btn-secondary" onclick="clearFilters()" style="padding: 10px 16px;" title="Xóa bộ lọc">
+            <i class="fa-solid fa-times"></i>
+        </button>
+        {% endif %}
+    </div>
+    
+    <button class="btn-primary" onclick="openAddModal()">
+        <i class="fa-solid fa-plus"></i> Thêm hóa đơn
+    </button>
+</div>
+
+<!-- Invoices Table -->
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Mã HĐ</th>
+                <th>Loại dịch vụ</th>
+                <th>Phòng</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Tổng tiền</th>
+                <th>Ngày thu phí</th>
+                <th>Ngày hết hạn</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody id="invoices-tbody">
+            {% if invoices %}
+                {% for invoice in invoices %}
+                <tr>
+                    <td><strong>{{ invoice.invoice_id }}</strong></td>
+                    <td>
+                        {% if invoice.service == 'rent' %}
+                            <span class="badge badge-primary">Tiền thuê</span>
+                        {% elif invoice.service == 'electricity' %}
+                            <span class="badge badge-warning">Điện</span>
+                        {% elif invoice.service == 'water' %}
+                            <span class="badge badge-info">Nước</span>
+                        {% elif invoice.service == 'internet' %}
+                            <span class="badge badge-success">Internet</span>
+                        {% elif invoice.service == 'maintenance' %}
+                            <span class="badge badge-danger">Bảo trì</span>
+                        {% else %}
+                            <span class="badge">Khác</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>{{ invoice.room.building.name }}</div>
+                        <div style="font-size: 0.85em; color: #64748b;">{{ invoice.room.room_number }}</div>
+                    </td>
+                    <td>{{ invoice.count_unit }}</td>
+                    <td>{{ invoice.unit_price|floatformat:0 }} VNĐ</td>
+                    <td><strong style="color: var(--primary-color);">{{ invoice.total_price|floatformat:0 }} VNĐ</strong></td>
+                    <td>{{ invoice.start_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if invoice.end_date %}
+                            {{ invoice.end_date|date:"d/m/Y" }}
+                        {% else %}
+                            <span style="color: #999;">--</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if invoice.status == 'paid' %}
+                            <span class="status-badge status-paid">Đã thanh toán</span>
+                        {% elif invoice.status == 'unpaid' %}
+                            <span class="status-badge status-unpaid">Chưa thanh toán</span>
+                        {% elif invoice.status == 'overdue' %}
+                            <span class="status-badge status-overdue">Quá hạn</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon" onclick="viewInvoice('{{ invoice.invoice_id }}')" title="Xem chi tiết">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editInvoice('{{ invoice.invoice_id }}')" title="Chỉnh sửa">
+                                <i class="fa-solid fa-edit"></i>
+                            </button>
+                            {% if invoice.status != 'paid' %}
+                            <button class="btn-icon btn-success" onclick="markAsPaid('{{ invoice.invoice_id }}')" title="Đánh dấu đã thanh toán">
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                            {% endif %}
+                            <button class="btn-icon btn-danger" onclick="deleteInvoice('{{ invoice.invoice_id }}')" title="Xóa">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="10" style="text-align: center; padding: 40px; color: #999;">
+                        <i class="fa-solid fa-inbox"></i><br>
+                        {% if search_keyword %}
+                            Không tìm thấy hóa đơn với từ khóa "{{ search_keyword }}"
+                        {% else %}
+                            Chưa có hóa đơn nào
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/invoices.js' %}"></script>
+{% endblock %}

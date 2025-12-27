@@ -1,136 +1,90 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chỉnh sửa {{ building.name }} - RMS System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/buildings.css' %}">
-</head>
-<body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-building"></i> RMS System
-        </div>
+{% block title %}Chỉnh sửa Tòa nhà{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/buildings.css' %}">
+{% endblock %}
+
+{% block header_icon %}
+<a href="{% url 'get_building_details' building_id=building.building_id %}" style="text-decoration: none; color: inherit; margin-right: 10px;">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
+<i class="fa-solid fa-building-pen"></i>
+{% endblock %}
+{% block header_title %}Chỉnh sửa tòa nhà{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h2><i class="fa-solid fa-building"></i> {{ building.name }}</h2>
+        <p style="color: #64748b; margin-top: 5px;">Mã: {{ building.building_id }}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
         
-        <a href="{% url 'home' %}" class="menu-item">
-            <i class="fa-solid fa-chart-pie"></i> Dashboard
-        </a>
-        <a href="{% url 'get_all_buildings' %}" class="menu-item active">
-            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
-        </div>
-        <a href="{% url 'contracts' %}" class="menu-item">
-            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
-        </div>
-        <div class="menu-item">
-            <i class="fa-solid fa-bell"></i> Thông báo
-        </div>
-        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
-            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-        </a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <div class="header-title">
-                <a href="{% url 'get_building_details' building_id=building.building_id %}" style="text-decoration: none; color: inherit;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-                Chỉnh sửa tòa nhà
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Tên tòa nhà *</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.name.errors.0 }}</span>
+                {% endif %}
             </div>
-            <div class="user-profile">
-                <div class="notification-bell">
-                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
-                    <div class="badge">3</div>
-                </div>
-                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
-                    <div style="text-align: right;">
-                        <div style="font-weight: bold; font-size: 14px;">
-                            {{ user.get_full_name|default:user.username }}
-                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
-                        </div>
-                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
-                    </div>
-                    {% if user.profile and user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
-                    {% else %}
-                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
-                        </div>
-                    {% endif %}
-                </a>
+            
+            <div class="form-group full-width">
+                <label for="{{ form.address.id_for_label }}">Địa chỉ *</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.address.errors.0 }}</span>
+                {% endif %}
             </div>
-        </header>
-
-        <!-- Form Body -->
-        <div class="dashboard-container">
-            <div class="form-container">
-                <div class="form-header">
-                    <h2><i class="fa-solid fa-building"></i> {{ building.name }}</h2>
-                    <p style="color: #64748b; margin-top: 5px;">Mã: {{ building.building_id }}</p>
-                </div>
-
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="{{ form.name.id_for_label }}">Tên tòa nhà *</label>
-                            {{ form.name }}
-                            {% if form.name.errors %}
-                                <span style="color: red; font-size: 12px;">{{ form.name.errors.0 }}</span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="{{ form.status.id_for_label }}">Trạng thái</label>
-                            {{ form.status }}
-                            {% if form.status.errors %}
-                                <span style="color: red; font-size: 12px;">{{ form.status.errors.0 }}</span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="form-group full-width">
-                            <label for="{{ form.address.id_for_label }}">Địa chỉ *</label>
-                            {{ form.address }}
-                            {% if form.address.errors %}
-                                <span style="color: red; font-size: 12px;">{{ form.address.errors.0 }}</span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="{{ form.total_floors.id_for_label }}">Tổng số tầng</label>
-                            {{ form.total_floors }}
-                            {% if form.total_floors.errors %}
-                                <span style="color: red; font-size: 12px;">{{ form.total_floors.errors.0 }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <a href="{% url 'get_building_details' building_id=building.building_id %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy</a>
-                        <button type="submit" class="btn-primary">
-                            <i class="fa-solid fa-check"></i> Cập nhật
-                        </button>
-                    </div>
-                </form>
+            
+            <div class="form-group">
+                <label for="{{ form.total_floors.id_for_label }}">Tổng số tầng</label>
+                {{ form.total_floors }}
+                {% if form.total_floors.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.total_floors.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.total_rooms.id_for_label }}">Tổng số phòng</label>
+                {{ form.total_rooms }}
+                {% if form.total_rooms.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.total_rooms.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.total_availble_rooms.id_for_label }}">Số phòng còn trống</label>
+                {{ form.total_availble_rooms }}
+                {% if form.total_availble_rooms.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.total_availble_rooms.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}">Trạng thái</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.status.errors.0 }}</span>
+                {% endif %}
             </div>
         </div>
-    </div>
 
-    <script src="{% static 'js/buildings.js' %}"></script>
-</body>
-</html>
+        <div class="form-actions">
+            <a href="{% url 'get_building_details' building_id=building.building_id %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy</a>
+            <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-save"></i> Lưu thay đổi
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/buildings.js' %}"></script>
+{% endblock %}

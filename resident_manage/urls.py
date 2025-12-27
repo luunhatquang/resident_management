@@ -34,6 +34,8 @@ urlpatterns = [
     
     
     path('', include('resident_manage.apps.building.urls')),
+    path('', include('resident_manage.apps.invoice.urls')),
+    path('', include('resident_manage.apps.notification.urls')),
 ]
 
 if settings.DEBUG:

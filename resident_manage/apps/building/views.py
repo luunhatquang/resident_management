@@ -39,7 +39,7 @@ def createBuilding(request):
     if request.method == 'POST':
         form = BuildingCreateForm(request.POST)
         if form.is_valid():
-            form.save()
+            form.save()     
             return redirect('get_all_buildings')
     else:
         form = BuildingCreateForm()

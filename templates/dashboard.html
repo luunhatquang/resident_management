@@ -1,203 +1,133 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Cư Dân - Dashboard</title>
-    <!-- Font Awesome cho Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-building"></i> RMS System
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<!-- No extra CSS needed for dashboard -->
+{% endblock %}
+
+{% block header_icon %}<i class="fa-solid fa-chart-line"></i>{% endblock %}
+{% block header_title %}
+Tổng quan {{ building_name }}
+<div style="margin-left: 20px;">
+    <select onchange="window.location.href='?building='+this.value" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; outline: none;">
+        <option value="Toàn bộ tòa nhà" {% if building_name == "Toàn bộ tòa nhà" %}selected{% endif %}>Toàn bộ tòa nhà</option>
+        {% for b in buildings %}
+            <option value="{{ b.name }}" {% if b.name == active_building.name and building_name != "Toàn bộ tòa nhà" %}selected{% endif %}>{{ b.name }}</option>
+        {% endfor %}
+    </select>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-title">Tổng số căn hộ</div>
+        <div class="stat-value" id="stat-total">{{ room_total }}</div>
+        <div style="color: var(--primary-color); font-size: 12px; margin-top: 5px;">
+            <i class="fa-solid fa-building"></i> {{ building_name }}
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Đã cho thuê/Bán</div>
+        <div class="stat-value" style="color: var(--status-occupied);" id="stat-occupied">{{ room_occupied_count }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Còn trống</div>
+        <div class="stat-value" style="color: var(--status-empty);" id="stat-empty">{{ room_empty_count }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Doanh thu tháng này</div>
+        <div class="stat-value">{{ revenue|floatformat:0 }} VNĐ</div>
+        <div style="color: {% if revenue_growth >= 0 %}#10b981{% else %}#ef4444{% endif %}; font-size: 12px; margin-top: 5px;">
+            <i class="fa-solid {% if revenue_growth >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}"></i> 
+            {{ revenue_growth }}% so với tháng trước
+        </div>
+    </div>
+</div>
+
+<!-- Building Map -->
+<div class="section-title">
+    <span>
+        <i class="fa-solid fa-map"></i> Sơ đồ căn hộ trực quan 
+        {% if building_name == "Toàn bộ tòa nhà" and active_building %}
+            ({{ active_building.name }})
+        {% endif %}
+    </span>
+    
+    <div class="building-legend">
+        <div class="legend-item">
+            <div class="dot" style="background: var(--status-occupied)"></div> Đã ở
+        </div>
+        <div class="legend-item">
+            <div class="dot" style="background: var(--status-empty)"></div> Trống
+        </div>
+        <div class="legend-item">
+            <div class="dot" style="background: var(--status-maintenance)"></div> Bảo trì
+        </div>
+        <div class="legend-item">
+            <div class="warning-icon" style="position:static; animation:none; width:18px; height:18px; font-size:10px">!</div> Sắp hết HĐ
+        </div>
+    </div>
+</div>
+
+<div class="building-container" id="building-map">
+    {% for floor in floors %}
+    <div class="floor-row">
+        <div class="floor-label">Tầng {{ floor.number }}</div>
+        <div class="apartments-list">
+            {% for room in floor.rooms %}
+        <div class="apartment-box status-{{ room.status }}" onclick="openRoomDetail({{ room.id }})">
+            <div class="apt-number">{{ room.room_number }}</div>
+            <div class="apt-status-text">{{ room.get_status_display }}</div>
+            
+            {% if room.active_contract and room.active_contract.is_expiring %}
+                <div class="warning-icon" title="Sắp hết hạn hợp đồng">!</div>
+            {% endif %}
+        </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 40px; color: #64748b;">
+        <i class="fa-solid fa-circle-info"></i> Không có dữ liệu căn hộ cho tòa nhà này.
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal: Resident Info -->
+<div id="resident-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <div class="modal-header">
+            <h2 id="modal-apt-number">Căn hộ ...</h2>
         </div>
         
-        <a href="{% url 'dashboard' %}" class="menu-item active">
-            <i class="fa-solid fa-chart-pie"></i> Dashboard
-        </a>
-        <a href="{% url 'get_all_buildings' %}" class="menu-item">
-            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+        <div class="info-row">
+            <span class="info-label">Trạng thái:</span>
+            <span id="modal-apt-status" style="font-weight: bold;">...</span>
         </div>
-        <a href="{% url 'contracts' %}" class="menu-item">
-            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+        <div class="info-row">
+            <span class="info-label">Diện tích:</span>
+            <span id="modal-apt-area">...</span>
         </div>
-        <div class="menu-item">
-            <i class="fa-solid fa-bell"></i> Thông báo
+
+        <h3 style="margin-top: 20px; font-size: 16px;">Danh sách cư dân</h3>
+        <div class="resident-list" id="modal-residents-list">
+            <!-- JS will populate this -->
         </div>
-        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
-            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-        </a>
-    </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <div class="header-title">
-                <i class="fa-solid fa-building-circle-check"></i>
-                Tổng quan {{ building_name }}
-            </div>
-            
-            <!-- Selector Tòa nhà -->
-            <div style="margin-left: 20px;">
-                <select onchange="window.location.href='?building='+this.value" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; outline: none;">
-                    <option value="Toàn bộ tòa nhà" {% if building_name == "Toàn bộ tòa nhà" %}selected{% endif %}>Toàn bộ tòa nhà</option>
-                    {% for b in buildings %}
-                        <option value="{{ b.name }}" {% if b.name == active_building.name and building_name != "Toàn bộ tòa nhà" %}selected{% endif %}>{{ b.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="user-profile">
-                <div class="notification-bell">
-                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
-                    <div class="badge">3</div>
-                </div>
-                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
-                    <div style="text-align: right;">
-                        <div style="font-weight: bold; font-size: 14px;">
-                            {{ user.get_full_name|default:user.username }}
-                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
-                        </div>
-                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
-                    </div>
-                    {% if user.profile and user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
-                    {% else %}
-                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
-                        </div>
-                    {% endif %}
-                </a>
-            </div>
-        </header>
-
-        <!-- Dashboard Body -->
-        <div class="dashboard-container">
-            
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-title">Tổng số căn hộ</div>
-                    <div class="stat-value" id="stat-total">{{ room_total }}</div>
-                    <div style="color: var(--primary-color); font-size: 12px; margin-top: 5px;">
-                        <i class="fa-solid fa-building"></i> {{ building_name }}
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Đã cho thuê/Bán</div>
-                    <div class="stat-value" style="color: var(--status-occupied);" id="stat-occupied">{{ room_occupied_count }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Còn trống</div>
-                    <div class="stat-value" style="color: var(--status-empty);" id="stat-empty">{{ room_empty_count }}</div>
-                </div>
-        <div class="stat-card">
-            <div class="stat-title">Doanh thu tháng này</div>
-            <div class="stat-value">{{ revenue|floatformat:0 }} VNĐ</div>
-            <div style="color: {% if revenue_growth >= 0 %}#10b981{% else %}#ef4444{% endif %}; font-size: 12px; margin-top: 5px;">
-                <i class="fa-solid {% if revenue_growth >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %}"></i> 
-                {{ revenue_growth }}% so với tháng trước
-            </div>
-        </div>
-            </div>
-
-            <!-- Task 5: Building Map -->
-            <div class="section-title">
-                <span>
-                    <i class="fa-solid fa-map"></i> Sơ đồ căn hộ trực quan 
-                    {% if building_name == "Toàn bộ tòa nhà" and active_building %}
-                        ({{ active_building.name }})
-                    {% endif %}
-                </span>
-                
-                <div class="building-legend">
-                    <div class="legend-item">
-                        <div class="dot" style="background: var(--status-occupied)"></div> Đã ở
-                    </div>
-                    <div class="legend-item">
-                        <div class="dot" style="background: var(--status-empty)"></div> Trống
-                    </div>
-                    <div class="legend-item">
-                        <div class="dot" style="background: var(--status-maintenance)"></div> Bảo trì
-                    </div>
-                    <div class="legend-item">
-                        <div class="warning-icon" style="position:static; animation:none; width:18px; height:18px; font-size:10px">!</div> Sắp hết HĐ
-                    </div>
-                </div>
-            </div>
-
-            <div class="building-container" id="building-map">
-                {% for floor in floors %}
-                <div class="floor-row">
-                    <div class="floor-label">Tầng {{ floor.number }}</div>
-                    <div class="apartments-list">
-                        {% for room in floor.rooms %}
-                    <div class="apartment-box status-{{ room.status }}" onclick="openRoomDetail({{ room.id }})">
-                        <div class="apt-number">{{ room.room_number }}</div>
-                        <div class="apt-status-text">{{ room.get_status_display }}</div>
-                        
-                        {% if room.active_contract and room.active_contract.is_expiring %}
-                            <div class="warning-icon" title="Sắp hết hạn hợp đồng">!</div>
-                        {% endif %}
-                    </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 40px; color: #64748b;">
-                    <i class="fa-solid fa-circle-info"></i> Không có dữ liệu căn hộ cho tòa nhà này.
-                </div>
-                {% endfor %}
-            </div>
-
+        <div style="margin-top: 20px; text-align: right;">
+            <a id="btn-update-profile" href="{% url 'profile' %}" style="padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block;">
+                <i class="fa-solid fa-pen-to-square"></i> Cập nhật hồ sơ
+            </a>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <!-- Modal: Resident Info (Task 4) -->
-    <div id="resident-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <div class="modal-header">
-                <h2 id="modal-apt-number">Căn hộ ...</h2>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-label">Trạng thái:</span>
-                <span id="modal-apt-status" style="font-weight: bold;">...</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Diện tích:</span>
-                <span id="modal-apt-area">...</span>
-            </div>
-
-            <h3 style="margin-top: 20px; font-size: 16px;">Danh sách cư dân</h3>
-            <div class="resident-list" id="modal-residents-list">
-                <!-- JS will populate this -->
-            </div>
-
-            <div style="margin-top: 20px; text-align: right;">
-                <a id="btn-update-profile" href="{% url 'profile' %}" style="padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block;">
-                    <i class="fa-solid fa-pen-to-square"></i> Cập nhật hồ sơ
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Custom JS -->
-    <script src="{% static 'js/script.js' %}"></script>
-</body>
-</html>
-
+{% block extra_js %}
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}
