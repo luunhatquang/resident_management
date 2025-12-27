@@ -30,6 +30,14 @@ function openRoomDetail(roomId) {
             document.getElementById('modal-apt-status').innerText = data.status;
             document.getElementById('modal-apt-area').innerText = `${data.area} m²`;
 
+            // Cập nhật nút Cập nhật hồ sơ/hợp đồng
+            const updateBtn = document.getElementById('btn-update-profile');
+            if (data.contract_id) {
+                updateBtn.href = `/contracts/${data.contract_id}/edit/`;
+            } else {
+                updateBtn.href = `/accounts/profile/`; // Fallback to personal profile
+            }
+
             // Cập nhật danh sách cư dân
             residentsList.innerHTML = '';
             if (data.residents && data.residents.length > 0) {

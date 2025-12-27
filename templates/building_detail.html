@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết {{ building.name }} - RMS System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/buildings.css' %}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-building"></i> RMS System
+        </div>
+        
+        <a href="{% url 'home' %}" class="menu-item">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <a href="{% url 'get_all_buildings' %}" class="menu-item active">
+            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+        </div>
+        <a href="{% url 'contracts' %}" class="menu-item">
+            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+        </div>
+        <div class="menu-item">
+            <i class="fa-solid fa-bell"></i> Thông báo
+        </div>
+        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <a href="{% url 'get_all_buildings' %}" style="text-decoration: none; color: inherit;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                Chi tiết tòa nhà
+            </div>
+            <div class="user-profile">
+                <div class="notification-bell">
+                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
+                    <div class="badge">3</div>
+                </div>
+                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 14px;">
+                            {{ user.get_full_name|default:user.username }}
+                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
+                    </div>
+                    {% if user.profile and user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </header>
+
+        <!-- Detail Body -->
+        <div class="dashboard-container">
+            <div class="detail-container">
+                <div class="detail-header">
+                    <div>
+                        <h2>{{ building.name }}</h2>
+                        <p style="color: #64748b; margin-top: 5px;">Mã: {{ building.building_id }}</p>
+                    </div>
+                    <span class="status-badge-large status-{{ building.status }}">
+                        {{ building.get_status_display }}
+                    </span>
+                </div>
+
+                <!-- Section: Thông tin chung -->
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-circle-info"></i> Thông tin chung</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Địa chỉ</label>
+                            <span>{{ building.address }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Tổng số tầng</label>
+                            <span>{{ building.total_floors|default:"--" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Tổng số phòng</label>
+                            <span>{{ building.total_rooms|default:"--" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Số phòng còn trống</label>
+                            <span style="color: var(--status-empty);">{{ building.total_availble_rooms|default:"--" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Danh sách phòng -->
+                <div class="info-section">
+                    <h3><i class="fa-solid fa-door-open"></i> Danh sách phòng</h3>
+                    
+                    <div class="room-filters">
+                        <button class="filter-btn active" onclick="filterRooms('all')">
+                            Tất cả ({{ building.rooms.count }})
+                        </button>
+                        <button class="filter-btn" onclick="filterRooms('available')">
+                            Trống
+                        </button>
+                        <button class="filter-btn" onclick="filterRooms('unavailable')">
+                            Đã thuê
+                        </button>
+                        <button class="filter-btn" onclick="filterRooms('maintenance')">
+                            Bảo trì
+                        </button>
+
+                        <a href="{% url 'create_room' %}?building={{ building.building_id }}" 
+                            class="btn-primary" 
+                            style="margin-left: auto; text-decoration: none; padding: 8px 16px; font-size: 14px;">
+                                <i class="fa-solid fa-plus"></i> Thêm phòng
+                            </a>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã phòng</th>
+                                    <th>Số phòng</th>
+                                    <th>Tầng</th>
+                                    <th>Diện tích</th>
+                                    <th>Giá thuê</th>
+                                    <th>Loại</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if building.rooms.all %}
+                                    {% for room in building.rooms.all %}
+                                    <tr class="room-row" data-status="{{ room.status }}">
+                                        <td><strong>{{ room.room_id }}</strong></td>
+                                        <td>{{ room.room_number }}</td>
+                                        <td>{{ room.floor_number }}</td>
+                                        <td>{{ room.room_area }} m²</td>
+                                        <td>{{ room.rent_price|floatformat:0 }} VNĐ</td>
+                                        <td>
+                                            {% if room.type_listing == 'rent' %}
+                                                <span class="badge badge-info">Cho thuê</span>
+                                            {% else %}
+                                                <span class="badge badge-success">Bán</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if room.status == 'available' %}
+                                                <span class="status-badge status-active">Đang trống</span>
+                                            {% elif room.status == 'unavailable' %}
+                                                <span class="status-badge status-occupied">Không còn trống</span>
+                                            {% else %}
+                                                <span class="status-badge status-maintenance">Bảo trì</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-icon" onclick="viewRoom('{{ room.room_id }}')" title="Xem chi tiết">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                                <button class="btn-icon" onclick="editRoom('{{ room.room_id }}')" title="Chỉnh sửa">
+                                                    <i class="fa-solid fa-edit"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                                            <i class="fa-solid fa-inbox"></i><br>
+                                            Chưa có phòng nào trong tòa nhà này
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="detail-actions">
+                    <a href="{% url 'get_all_buildings' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Quay lại</a>
+                    <button class="btn-primary" onclick="editBuilding('{{ building.building_id }}')">
+                        <i class="fa-solid fa-edit"></i> Chỉnh sửa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/buildings.js' %}"></script>
+</body>
+</html>
+

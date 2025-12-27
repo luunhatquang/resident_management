@@ -4,65 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ action }} Hợp đồng - RMS System</title>
+    <title>Chỉnh sửa Phòng {{ room.room_number }} - RMS System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
-    <style>
-        .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .form-group.full-width {
-            grid-column: span 2;
-        }
-        .form-group label {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 14px;
-        }
-        .form-control {
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .errorlist {
-            color: #dc2626;
-            font-size: 12px;
-            list-style: none;
-            padding: 0;
-            margin: 4px 0 0 0;
-        }
-        .form-actions {
-            margin-top: 30px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/buildings.css' %}">
 </head>
 <body>
 
@@ -75,13 +20,13 @@
         <a href="{% url 'home' %}" class="menu-item">
             <i class="fa-solid fa-chart-pie"></i> Dashboard
         </a>
-        <a href="{% url 'get_all_buildings' %}" class="menu-item">
+        <a href="{% url 'get_all_buildings' %}" class="menu-item active">
             <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
         </a>
         <div class="menu-item">
             <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
         </div>
-        <a href="{% url 'contracts' %}" class="menu-item active">
+        <a href="{% url 'contracts' %}" class="menu-item">
             <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
         </a>
         <div class="menu-item">
@@ -100,10 +45,10 @@
         <!-- Header -->
         <header>
             <div class="header-title">
-                <a href="{% url 'contracts' %}" style="text-decoration: none; color: inherit;">
+                <a href="{% url 'get_room_details' room_id=room.room_id %}" style="text-decoration: none; color: inherit;">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
-                {{ action }} Hợp đồng
+                Chỉnh sửa phòng
             </div>
             <div class="user-profile">
                 <div class="notification-bell">
@@ -132,37 +77,45 @@
         <!-- Form Body -->
         <div class="dashboard-container">
             <div class="form-container">
-                <form method="post" novalidate>
+                <div class="form-header">
+                    <h2><i class="fa-solid fa-door-open"></i> Phòng {{ room.room_number }}</h2>
+                    <p style="color: #64748b; margin-top: 5px;">Mã: {{ room.room_id }} | {{ room.building.name }}</p>
+                </div>
+
+                <form method="POST">
                     {% csrf_token %}
                     
-                    {% if form.non_field_errors %}
-                    <div style="background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #dc2626;">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        {% for error in form.non_field_errors %}
-                            <p style="margin: 4px 0 0 0;">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
                     <div class="form-grid">
-                        {% for field in form %}
-                        <div class="form-group {% if field.name == 'notes' %}full-width{% endif %}">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                {{ field.errors }}
-                            {% endif %}
-                            {% if field.help_text %}
-                                <small style="color: #64748b; font-size: 12px;">{{ field.help_text }}</small>
+                        <div class="form-group">
+                            <label for="{{ form.status.id_for_label }}">Trạng thái</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <span style="color: red; font-size: 12px;">{{ form.status.errors.0 }}</span>
                             {% endif %}
                         </div>
-                        {% endfor %}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.owner.id_for_label }}">Chủ sở hữu</label>
+                            {{ form.owner }}
+                            {% if form.owner.errors %}
+                                <span style="color: red; font-size: 12px;">{{ form.owner.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="{{ form.room_residents.id_for_label }}">Cư dân</label>
+                            {{ form.room_residents }}
+                            {% if form.room_residents.errors %}
+                                <span style="color: red; font-size: 12px;">{{ form.room_residents.errors.0 }}</span>
+                            {% endif %}
+                            <small style="color: #64748b;">Giữ Ctrl (hoặc Cmd) để chọn nhiều cư dân</small>
+                        </div>
                     </div>
 
                     <div class="form-actions">
-                        <a href="{% url 'contracts' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy bỏ</a>
+                        <a href="{% url 'get_room_details' room_id=room.room_id %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy</a>
                         <button type="submit" class="btn-primary">
-                            <i class="fa-solid fa-save"></i> Lưu thông tin
+                            <i class="fa-solid fa-check"></i> Cập nhật
                         </button>
                     </div>
                 </form>
@@ -170,6 +123,7 @@
         </div>
     </div>
 
+    <script src="{% static 'js/buildings.js' %}"></script>
 </body>
 </html>
 
