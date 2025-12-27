@@ -42,4 +42,3 @@ echo ⏹  Nhấn Ctrl+C để dừng server
 echo.
 
 python manage.py runserver
-

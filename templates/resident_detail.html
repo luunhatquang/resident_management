@@ -1,0 +1,271 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Cư dân - RMS System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
+    <style>
+        .detail-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 20px 0;
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .detail-item label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-item span {
+            font-size: 15px;
+            color: var(--text-main);
+            padding: 8px 0;
+        }
+        .detail-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-primary, .btn-secondary {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-building"></i> RMS System
+        </div>
+        
+        <a href="{% url 'home' %}" class="menu-item">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
+        </div>
+        <a href="{% url 'residents' %}" class="menu-item active">
+            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+        </a>
+        <a href="{% url 'contracts' %}" class="menu-item">
+            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+        </div>
+        <div class="menu-item">
+            <i class="fa-solid fa-bell"></i> Thông báo
+        </div>
+        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <i class="fa-solid fa-users"></i> Chi tiết Cư dân
+            </div>
+        </header>
+
+        <!-- Detail Container -->
+        <div class="dashboard-container">
+            <div class="detail-container">
+                <div class="detail-header">
+                    <div>
+                        <h2 style="margin: 0;">{{ resident.last_name }} {{ resident.first_name }}</h2>
+                        <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">CMND/CCCD: {{ resident.citizen_id }}</p>
+                    </div>
+                    {% if resident.room %}
+                        <span class="status-badge status-active">Đang ở</span>
+                    {% else %}
+                        <span class="status-badge" style="background: #fecaca; color: #7c2d12;">Chưa xác định vị trí</span>
+                    {% endif %}
+                </div>
+
+                <!-- Thông tin cá nhân -->
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+                    <i class="fa-solid fa-user-circle"></i> Thông tin Cá nhân
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Họ</label>
+                        <span>{{ resident.last_name }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Tên</label>
+                        <span>{{ resident.first_name }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Ngày sinh</label>
+                        <span>{{ resident.date_of_birth|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Giới tính</label>
+                        <span>{{ resident.get_gender_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>CMND/CCCD</label>
+                        <span>{{ resident.citizen_id }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Số điện thoại</label>
+                        <span>{{ resident.phone_number|default:"--" }}</span>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <label>Email</label>
+                        <span>{{ resident.email|default:"--" }}</span>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2;">
+                        <label>Địa chỉ</label>
+                        <span>{{ resident.address }}</span>
+                    </div>
+                </div>
+
+                <!-- Thông tin ở tòa nhà -->
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+                    <i class="fa-solid fa-building"></i> Thông tin Ở Tòa nhà
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Tòa nhà</label>
+                        <span>
+                            {% if resident.building %}
+                                {{ resident.building.name }}
+                            {% else %}
+                                <span style="color: #999;">--</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Căn hộ</label>
+                        <span>
+                            {% if resident.room %}
+                                {{ resident.room.room_number }}
+                            {% else %}
+                                <span style="color: #999;">--</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Quan hệ với chủ hộ</label>
+                        <span>{{ resident.get_relationship_display|default:"--" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Ngày tạo hồ sơ</label>
+                        <span>{{ resident.created_at|date:"d/m/Y H:i" }}</span>
+                    </div>
+                </div>
+
+                <!-- Hợp đồng liên quan -->
+                {% if resident.current_contract %}
+                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+                    <i class="fa-solid fa-file-contract"></i> Hợp đồng Hiện tại
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Mã hợp đồng</label>
+                        <span>{{ resident.current_contract.contract_id }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Loại hợp đồng</label>
+                        <span>{{ resident.current_contract.get_contract_type_display }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Ngày ký</label>
+                        <span>{{ resident.current_contract.sign_date|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Trạng thái</label>
+                        <span>
+                            {% if resident.current_contract.status == 'active' %}
+                                <span class="status-badge status-active">Đang hiệu lực</span>
+                            {% else %}
+                                <span class="status-badge" style="background: #fecaca; color: #7c2d12;">{{ resident.current_contract.get_status_display }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="detail-actions">
+                    <a href="{% url 'residents' %}" class="btn-secondary">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại
+                    </a>
+                    <a href="{% url 'resident_edit' resident.id %}" class="btn-primary">
+                        <i class="fa-solid fa-edit"></i> Chỉnh sửa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

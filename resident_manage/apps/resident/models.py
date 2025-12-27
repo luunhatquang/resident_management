@@ -31,6 +31,7 @@ class Resident(BaseModel):
     
     building = models.ForeignKey(Building, on_delete=models.PROTECT, related_name='residents', verbose_name="Tòa nhà", null=True, blank=True)
     room = models.ForeignKey(Room, on_delete=models.PROTECT, related_name='residents', verbose_name="Căn hộ", null=True, blank=True)
+    
     class Meta:
         db_table = "resident"
         verbose_name = "Cư dân"
@@ -39,3 +40,9 @@ class Resident(BaseModel):
     
     def __str__(self):
         return f"{self.last_name} {self.first_name} ({self.citizen_id})"
+    
+    @property
+    def current_contract(self):
+        """Lấy hợp đồng hiện tại (đang hoạt động) của cư dân"""
+        from resident_manage.apps.contract.models import Contract
+        return self.contracts.filter(status__in=['active', 'will_expire']).first()

@@ -24,9 +24,12 @@
         <div class="menu-item">
             <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
         </div>
-        <div class="menu-item">
+        <!-- <div class="menu-item">
             <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
-        </div>
+        </div> -->
+        <a href="{% url 'residents' %}" class="menu-item">
+            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+        </a>
         <a href="{% url 'contracts' %}" class="menu-item">
             <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
         </a>
