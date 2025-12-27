@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quản lý Thông báo{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
+{% block header_icon %}<i class="fa-solid fa-bell-concierge"></i>{% endblock %}
+{% block header_title %}Quản lý Thông báo{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+            <i class="fa-solid fa-inbox"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-title">Tổng thông báo</div>
+            <div class="stat-value">{{ total|default:"0" }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #ddd6fe; color: #7c3aed;">
+            <i class="fa-solid fa-envelope-open"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-title">Chưa đọc</div>
+            <div class="stat-value">{{ unread|default:"0" }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fed7aa; color: #ea580c;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-title">Ưu tiên cao</div>
+            <div class="stat-value">{{ high_priority|default:"0" }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fecaca; color: #dc2626;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-title">Khẩn cấp</div>
+            <div class="stat-value">{{ emergency|default:"0" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Notifications List Header -->
+<div class="section-header" style="margin-top: 30px;">
+    <h2 style="font-size: 18px; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-list-ul"></i> Danh sách thông báo
+    </h2>
+    <button class="btn-primary" onclick="openAddModal()">
+        <i class="fa-solid fa-plus"></i> Tạo thông báo
+    </button>
+</div>
+
+<!-- Notifications Items -->
+<div class="notifications-list">
+    {% if notifications %}
+        {% for notif in notifications %}
+        <div class="notification-item {% if not notif.is_read %}unread{% endif %} priority-{{ notif.priority }}">
+            <div class="notif-icon">
+                {% if notif.notification_type == 'contract_expiring' %}
+                    <i class="fa-regular fa-clock"></i>
+                {% elif notif.notification_type == 'contract_expired' %}
+                    <i class="fa-solid fa-circle-xmark"></i>
+                {% elif notif.notification_type == 'payment_reminder' %}
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                {% elif notif.notification_type == 'maintenance' %}
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                {% else %}
+                    <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+            </div>
+            <div class="notif-content">
+                <div class="notif-header">
+                    <h3 class="notif-title">{{ notif.title }}</h3>
+                    <div class="notif-meta">
+                        <span class="priority-badge priority-{{ notif.priority }}">
+                            {% if notif.priority == 'emergency' %}
+                                <i class="fa-solid fa-siren-on"></i> Khẩn cấp
+                            {% elif notif.priority == 'high' %}
+                                <i class="fa-solid fa-arrow-up"></i> Cao
+                            {% elif notif.priority == 'medium' %}
+                                <i class="fa-solid fa-grip-lines"></i> Trung bình
+                            {% else %}
+                                <i class="fa-solid fa-arrow-down"></i> Thấp
+                            {% endif %}
+                        </span>
+                        <span class="notif-type-badge">{{ notif.get_notification_type_display }}</span>
+                    </div>
+                </div>
+                <p class="notif-message">{{ notif.message }}</p>
+                <div class="notif-footer">
+                    <div class="notif-details">
+                        {% if notif.contract %}
+                            <span><i class="fa-regular fa-file-lines"></i> HĐ: {{ notif.contract.contract_id }}</span>
+                        {% endif %}
+                        {% if notif.resident %}
+                            <span><i class="fa-regular fa-user"></i> {{ notif.resident.first_name }} {{ notif.resident.last_name }}</span>
+                        {% endif %}
+                        {% if notif.room %}
+                            <span><i class="fa-regular fa-building"></i> {{ notif.room.room_number }}</span>
+                        {% endif %}
+                        <span><i class="fa-regular fa-calendar"></i> {{ notif.created_at|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    <div class="notif-actions">
+                        {% if not notif.is_read %}
+                        <button class="btn-icon btn-success" onclick="markAsRead({{ notif.id }})" title="Đánh dấu đã đọc">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        {% endif %}
+                        <button class="btn-icon btn-danger" onclick="deleteNotification({{ notif.id }})" title="Xóa">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div style="text-align: center; padding: 60px 20px; color: #999;">
+            <i class="fa-regular fa-bell-slash" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+            <p style="font-size: 18px; font-weight: 500;">Chưa có thông báo nào</p>
+            <p style="font-size: 14px; margin-top: 8px;">Thông báo sẽ xuất hiện ở đây</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/notifications.js' %}"></script>
+{% endblock %}

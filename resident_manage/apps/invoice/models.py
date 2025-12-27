@@ -2,11 +2,14 @@ from django.db import models
 from resident_manage.core.models.base import BaseModel
 from resident_manage.apps.building.models import Room
 from resident_manage.apps.contract.models import Contract
+from resident_manage.apps.resident.models import Resident
 
 
 class Invoice(BaseModel):
     invoice_id = models.CharField(max_length=50, unique=True, verbose_name="Mã hóa đơn")
+    invoice_title = models.CharField(max_length=255, verbose_name="Nội dung hóa đơn", blank=True, default='')
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='invoices', verbose_name="Phòng")
+    resident = models.ForeignKey(Resident, on_delete=models.CASCADE, related_name='invoices', verbose_name="Chủ hộ", null=True, blank=True)
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name='invoices', verbose_name="Hợp đồng", null=True, blank=True)
     TYPE_SERVICE = [
         ('electricity', 'Hoá đơn điện'),

@@ -1,98 +1,108 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Tòa nhà - RMS System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/buildings.css' %}">
-</head>
-<body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-building"></i> RMS System
-        </div>
-        
-        <a href="{% url 'home' %}" class="menu-item">
-            <i class="fa-solid fa-chart-pie"></i> Dashboard
-        </a>
-        <a href="{% url 'get_all_buildings' %}" class="menu-item active">
-            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
-        </div>
-        <a href="{% url 'contracts' %}" class="menu-item">
-            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
-        </div>
-        <div class="menu-item">
-            <i class="fa-solid fa-bell"></i> Thông báo
-        </div>
-        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
-            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-        </a>
+{% block title %}Quản lý Tòa nhà{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/buildings.css' %}">
+{% endblock %}
+
+{% block header_icon %}<i class="fa-solid fa-city"></i>{% endblock %}
+{% block header_title %}Quản lý Tòa nhà{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-title">Tổng tòa nhà</div>
+        <div class="stat-value">{{ buildings.count }}</div>
     </div>
+    <div class="stat-card">
+        <div class="stat-title">Đang hoạt động</div>
+        <div class="stat-value" style="color: var(--status-empty);">{{ active_count|default:"0" }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Ngừng hoạt động</div>
+        <div class="stat-value" style="color: var(--status-occupied);">{{ inactive_count|default:"0" }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-title">Tổng phòng</div>
+        <div class="stat-value">{{ total_rooms|default:"0" }}</div>
+    </div>
+</div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <div class="header-title">
-                <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
-            </div>
-            <div class="user-profile">
-                <div class="notification-bell">
-                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
-                    <div class="badge">3</div>
+<!-- Filters & Actions -->
+<div class="section-header">
+    <div class="filters">
+        <select id="filter-status" class="filter-select" onchange="applyFilters()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Ngừng hoạt động</option>
+        </select>
+        
+        <input type="text" id="search-input" class="search-input" 
+               placeholder="🔍 Tìm tên tòa nhà, mã..." 
+               onkeypress="if(event.key==='Enter') applyFilters()">
+        
+        <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
+            <i class="fa-solid fa-search"></i>
+        </button>
+    </div>
+    
+    <button class="btn-primary" onclick="openAddModal()">
+        <i class="fa-solid fa-plus"></i> Thêm tòa nhà
+    </button>
+</div>
+
+<!-- Buildings Grid -->
+<div class="buildings-grid">
+    {% if buildings %}
+        {% for building in buildings %}
+        <div class="building-card" onclick="viewBuilding('{{ building.building_id }}')">
+            <div class="building-header">
+                <div class="building-icon">
+                    <i class="fa-solid fa-building"></i>
                 </div>
-                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
-                    <div style="text-align: right;">
-                        <div style="font-weight: bold; font-size: 14px;">
-                            {{ user.get_full_name|default:user.username }}
-                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
-                        </div>
-                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
-                    </div>
-                    {% if user.profile and user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
+                <div class="building-status">
+                    {% if building.status == 'active' %}
+                        <span class="status-badge status-active">Đang hoạt động</span>
                     {% else %}
-                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
-                        </div>
+                        <span class="status-badge status-inactive">Ngừng hoạt động</span>
                     {% endif %}
-                </a>
+                </div>
             </div>
-        </header>
-
-        <!-- Dashboard Body -->
-        <div class="dashboard-container">
             
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-title">Tổng tòa nhà</div>
-                    <div class="stat-value">{{ buildings.count }}</div>
+            <div class="building-info">
+                <h3 class="building-name">{{ building.name }}</h3>
+                <p class="building-id">Mã: {{ building.building_id }}</p>
+                <p class="building-address">
+                    <i class="fa-solid fa-location-dot"></i> {{ building.address|truncatewords:10 }}
+                </p>
+            </div>
+            
+            <div class="building-stats">
+                <div class="stat-item">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>{{ building.total_floors|default:"0" }} tầng</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-title">Đang hoạt động</div>
-                    <div class="stat-value" style="color: var(--status-empty);">{{ active_count|default:"0" }}</div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-door-open"></i>
+                    <span>{{ building.total_rooms|default:"0" }} phòng</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-title">Ngừng hoạt động</div>
-                    <div class="stat-value" style="color: var(--status-occupied);">{{ inactive_count|default:"0" }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Tổng phòng</div>
-                    <div class="stat-value">{{ total_rooms|default:"0" }}</div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span>{{ building.total_availble_rooms|default:"0" }} trống</span>
                 </div>
             </div>
+<<<<<<< HEAD
+            
+            <div class="building-actions">
+                <button class="btn-icon" onclick="event.stopPropagation(); viewBuilding('{{ building.building_id }}')" title="Xem chi tiết">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                <button class="btn-icon" onclick="event.stopPropagation(); editBuilding('{{ building.building_id }}')" title="Chỉnh sửa">
+                    <i class="fa-solid fa-edit"></i>
+=======
 
             <!-- Filters & Actions -->
             <div class="section-header">
@@ -122,72 +132,20 @@
                 
                 <button class="btn-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus"></i> Thêm tòa nhà
+>>>>>>> 38612e30d27a7795c95f4f88511d5da09e8cf800
                 </button>
             </div>
-
-            <!-- Buildings Grid -->
-            <div class="buildings-grid">
-                {% if buildings %}
-                    {% for building in buildings %}
-                    <div class="building-card" onclick="viewBuilding('{{ building.building_id }}')">
-                        <div class="building-header">
-                            <div class="building-icon">
-                                <i class="fa-solid fa-building"></i>
-                            </div>
-                            <div class="building-status">
-                                {% if building.status == 'active' %}
-                                    <span class="status-badge status-active">Đang hoạt động</span>
-                                {% else %}
-                                    <span class="status-badge status-inactive">Ngừng hoạt động</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="building-info">
-                            <h3 class="building-name">{{ building.name }}</h3>
-                            <p class="building-id">Mã: {{ building.building_id }}</p>
-                            <p class="building-address">
-                                <i class="fa-solid fa-location-dot"></i> {{ building.address|truncatewords:10 }}
-                            </p>
-                        </div>
-                        
-                        <div class="building-stats">
-                            <div class="stat-item">
-                                <i class="fa-solid fa-layer-group"></i>
-                                <span>{{ building.total_floors|default:"0" }} tầng</span>
-                            </div>
-                            <div class="stat-item">
-                                <i class="fa-solid fa-door-open"></i>
-                                <span>{{ building.total_rooms|default:"0" }} phòng</span>
-                            </div>
-                            <div class="stat-item">
-                                <i class="fa-solid fa-check-circle"></i>
-                                <span>{{ building.total_availble_rooms|default:"0" }} trống</span>
-                            </div>
-                        </div>
-                        
-                        <div class="building-actions">
-                            <button class="btn-icon" onclick="event.stopPropagation(); viewBuilding('{{ building.building_id }}')" title="Xem chi tiết">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button class="btn-icon" onclick="event.stopPropagation(); editBuilding('{{ building.building_id }}')" title="Chỉnh sửa">
-                                <i class="fa-solid fa-edit"></i>
-                            </button>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">
-                        <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 16px;"></i><br>
-                        Chưa có tòa nhà nào
-                    </div>
-                {% endif %}
-            </div>
-
         </div>
-    </div>
+        {% endfor %}
+    {% else %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">
+            <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 16px;"></i><br>
+            Chưa có tòa nhà nào
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
 
-    <script src="{% static 'js/buildings.js' %}"></script>
-</body>
-</html>
-
+{% block extra_js %}
+<script src="{% static 'js/buildings.js' %}"></script>
+{% endblock %}

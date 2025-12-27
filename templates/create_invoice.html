@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thêm Hóa đơn{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoices.css' %}">
+{% endblock %}
+
+{% block header_icon %}
+<a href="{% url 'get_all_invoices' %}" style="text-decoration: none; color: inherit; margin-right: 10px;">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
+<i class="fa-solid fa-file-invoice-circle-plus"></i>
+{% endblock %}
+{% block header_title %}Thêm Hóa đơn mới{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h2><i class="fa-solid fa-file-invoice-dollar"></i> Thông tin hóa đơn</h2>
+    </div>
+
+    <form method="POST" id="invoice-form">
+        {% csrf_token %}
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.invoice_id.id_for_label }}">Mã hóa đơn *</label>
+                {{ form.invoice_id }}
+                {% if form.invoice_id.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.invoice_id.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.invoice_title.id_for_label }}">Nội dung hóa đơn</label>
+                {{ form.invoice_title }}
+                {% if form.invoice_title.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.invoice_title.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.service.id_for_label }}">Loại dịch vụ *</label>
+                {{ form.service }}
+                {% if form.service.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.service.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group" id="contract-group" style="display: none;">
+                <label for="{{ form.contract.id_for_label }}">Hợp đồng</label>
+                {{ form.contract }}
+                {% if form.contract.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.contract.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.room.id_for_label }}">Phòng *</label>
+                {{ form.room }}
+                {% if form.room.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.room.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.resident.id_for_label }}">Chủ hộ</label>
+                {{ form.resident }}
+                {% if form.resident.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.resident.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.count_unit.id_for_label }}">Số lượng đơn vị *</label>
+                {{ form.count_unit }}
+                {% if form.count_unit.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.count_unit.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.unit_price.id_for_label }}">Đơn giá (VNĐ) *</label>
+                {{ form.unit_price }}
+                {% if form.unit_price.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.unit_price.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.total_price.id_for_label }}">Tổng tiền (VNĐ) *</label>
+                <input type="number" id="id_total_price" name="total_price" step="0.01" class="form-control" readonly>
+                <small style="color: #64748b;">Tự động tính = Số lượng × Đơn giá</small>
+                {% if form.total_price.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.total_price.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}">Trạng thái</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.status.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.start_date.id_for_label }}">Ngày thu phí *</label>
+                {{ form.start_date }}
+                {% if form.start_date.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.start_date.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.end_date.id_for_label }}">Ngày hết hạn</label>
+                {{ form.end_date }}
+                {% if form.end_date.errors %}
+                    <span style="color: red; font-size: 12px;">{{ form.end_date.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'get_all_invoices' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy</a>
+            <button type="submit" class="btn-primary">
+                <i class="fa-solid fa-check"></i> Lưu
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/invoices.js' %}"></script>
+{% endblock %}
