@@ -1,6 +1,8 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect
-from resident_manage.apps.building.forms import BuildingCreateForm, BuildingUpdateForm, RoomCreateForm, RoomUpdateForm
+from resident_manage.apps.building.forms import  BuildingUpdateForm, RoomCreateForm, RoomUpdateForm, BuildingForm
 from resident_manage.apps.building.models import Building, Room
+from django.db.models import Q, Sum
 from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 
@@ -24,9 +26,45 @@ class RoomViewSet(viewsets.ModelViewSet):
 
 @login_required(login_url='login')
 def getAllBuildings(request):
-    buildings = Building.objects.all()
-    context = {"buildings":buildings}
+    # --- PHẦN 1: THỐNG KÊ TOÀN HỆ THỐNG (Không bị ảnh hưởng bởi bộ lọc) ---
+    total_buildings = Building.objects.count() # Tổng số tòa nhà trong DB
+    active_count = Building.objects.filter(status='active').count()
+    inactive_count = Building.objects.filter(status='inactive').count()
+    
+    # Tính tổng phòng (xử lý trường hợp None nếu DB rỗng)
+    total_rooms_agg = Building.objects.aggregate(Sum('total_rooms'))
+    total_rooms = total_rooms_agg['total_rooms__sum'] if total_rooms_agg['total_rooms__sum'] else 0
+
+    # --- PHẦN 2: LỌC DANH SÁCH HIỂN THỊ (Bị ảnh hưởng bởi bộ lọc) ---
+    buildings = Building.objects.all().order_by('-building_id') # Mặc định lấy hết
+
+    # Lọc theo trạng thái
+    status_filter = request.GET.get('status')
+    if status_filter == 'active':
+        buildings = buildings.filter(status='active')
+    elif status_filter == 'inactive':
+        buildings = buildings.filter(status='inactive')
+
+    # Tìm kiếm
+    search_query = request.GET.get('q')
+    if search_query:
+        search_query = search_query.strip()
+        buildings = buildings.filter(
+            Q(name__icontains=search_query) | 
+            Q(building_id__icontains=search_query) |
+            Q(address__icontains=search_query)
+        )
+
+    context = {
+        'buildings': buildings,           # Danh sách để hiện ở lưới bên dưới
+        'total_buildings': total_buildings, # <--- BIẾN MỚI: Tổng cố định
+        'active_count': active_count,
+        'inactive_count': inactive_count,
+        'total_rooms': total_rooms,
+    }
+    
     return render(request, 'buildings.html', context)
+
 
 @login_required(login_url='login')
 def getBuildingWithFilter(request, name_contains):
@@ -36,14 +74,52 @@ def getBuildingWithFilter(request, name_contains):
 
 @login_required(login_url='login')
 def createBuilding(request):
+    """
+    View xử lý thêm mới tòa nhà.
+    Route: /buildings/create/
+    Name: create_building
+    """
+    
+    # 1. Xử lý khi người dùng Submit Form (POST)
     if request.method == 'POST':
-        form = BuildingCreateForm(request.POST)
+        form = BuildingForm(request.POST)
+        
         if form.is_valid():
+<<<<<<< HEAD
             form.save()     
             return redirect('get_all_buildings')
+=======
+            try:
+                # Lưu dữ liệu vào Database
+                new_building = form.save()
+                
+                # Thông báo thành công
+                messages.success(request, f'Đã thêm tòa nhà "{new_building.name}" thành công!')
+                
+                # Điều hướng về trang danh sách tòa nhà
+                return redirect('get_all_buildings') 
+                
+            except Exception as e:
+                # Xử lý lỗi hệ thống (ít gặp)
+                messages.error(request, f'Có lỗi xảy ra: {e}')
+        else:
+            # Nếu form không hợp lệ (ví dụ thiếu trường bắt buộc), Django sẽ giữ lại dữ liệu
+            # và hiển thị lỗi. Ta chỉ cần báo message chung.
+            messages.error(request, 'Vui lòng kiểm tra lại thông tin nhập vào.')
+
+    # 2. Xử lý khi người dùng truy cập trang (GET)
+>>>>>>> 38612e30d27a7795c95f4f88511d5da09e8cf800
     else:
-        form = BuildingCreateForm()
-    return render(request, 'create_building.html', {'form': form})
+        form = BuildingForm()
+
+    # Render template với context chứa form
+    context = {
+        'form': form,
+        'page_title': 'Thêm Tòa nhà' # Có thể dùng để set title động
+    }
+    
+    # Thay 'buildings/add_building.html' bằng đường dẫn thực tế file HTML thêm mới của bạn
+    return render(request, "create_building.html", context)
             
 @login_required(login_url='login')
 def updateBuilding(request, building_id):
@@ -71,14 +147,53 @@ def getBuilingsByStatus(request, status):
 
 @login_required(login_url='login')
 def createRoom(request):
+    # 1. Lấy thông tin tòa nhà từ URL
+    initial_building_id = request.GET.get('building')
+    building_obj = None
+    
+    if initial_building_id:
+        try:
+            building_obj = Building.objects.get(building_id=initial_building_id)
+        except Building.DoesNotExist:
+            pass
+
     if request.method == 'POST':
-        form = RoomCreateForm(request.POST)
+        # --- BƯỚC QUAN TRỌNG NHẤT Ở ĐÂY ---
+        # Vì field building bị disabled, trình duyệt KHÔNG GỬI dữ liệu lên.
+        # Ta cần tạo một bản sao của request.POST và thủ công gán building_id vào đó.
+        
+        post_data = request.POST.copy() # Tạo bản sao có thể chỉnh sửa
+        
+        if building_obj:
+            # Tự động điền ID tòa nhà vào dữ liệu POST
+            post_data['building'] = building_obj.pk 
+            
+        # Dùng post_data đã được "vá" để nạp vào form
+        form = RoomCreateForm(post_data, initial={'building': building_obj})
+        
         if form.is_valid():
-            form.save()
-            return redirect('get_all_buildings')
+            try:
+                new_room = form.save()
+                messages.success(request, f'Đã thêm phòng {new_room.room_number} thành công!')
+                
+                # Redirect về trang chi tiết tòa nhà (đảm bảo tên 'building_detail' đúng trong urls.py)
+                return redirect('get_building_details', building_id=new_room.building.building_id)
+                
+            except Exception as e:
+                messages.error(request, f'Lỗi hệ thống: {str(e)}')
+        else:
+            # In lỗi ra để debug xem tại sao form không valid
+            messages.error(request, f'Vui lòng kiểm tra lại: {form.errors}')
+    
     else:
-        form = RoomCreateForm()
-    return render(request, 'create_room.html', {'form': form})
+        # GET Request: Chỉ cần hiển thị và disable field (logic đã có trong forms.py)
+        form = RoomCreateForm(initial={'building': building_obj})
+
+    context = {
+        'form': form,
+        'page_title': 'Thêm Phòng Mới'
+    }
+    return render(request, 'create_room.html', context)
 
 
 @login_required(login_url='login')

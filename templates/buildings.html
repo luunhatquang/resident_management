@@ -94,6 +94,7 @@
                     <span>{{ building.total_availble_rooms|default:"0" }} trống</span>
                 </div>
             </div>
+<<<<<<< HEAD
             
             <div class="building-actions">
                 <button class="btn-icon" onclick="event.stopPropagation(); viewBuilding('{{ building.building_id }}')" title="Xem chi tiết">
@@ -101,6 +102,37 @@
                 </button>
                 <button class="btn-icon" onclick="event.stopPropagation(); editBuilding('{{ building.building_id }}')" title="Chỉnh sửa">
                     <i class="fa-solid fa-edit"></i>
+=======
+
+            <!-- Filters & Actions -->
+            <div class="section-header">
+                <div class="filters">
+                    <select id="filter-status" class="filter-select" onchange="applyFilters()">
+                        <option value="" {% if not request.GET.status %}selected{% endif %}>
+                            Tất cả trạng thái
+                        </option>
+
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>
+                            Đang hoạt động
+                        </option>
+
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>
+                            Ngừng hoạt động
+                        </option>
+                    </select>
+                    
+                    <input type="text" name="q" id="search-input" class="search-input" 
+                           placeholder="Tìm tên tòa nhà, mã..." 
+                           onkeypress="if(event.key==='Enter') applyFilters()">
+                    
+                    <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
+                </div>
+                
+                <button class="btn-primary" onclick="openAddModal()">
+                    <i class="fa-solid fa-plus"></i> Thêm tòa nhà
+>>>>>>> 38612e30d27a7795c95f4f88511d5da09e8cf800
                 </button>
             </div>
         </div>
