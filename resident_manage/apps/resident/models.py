@@ -29,8 +29,14 @@ class Resident(BaseModel):
     ]
     relationship = models.CharField(max_length=20, choices=RELATIONSHIP_CHOICES, default='tenant', verbose_name="Quan hệ với chủ hộ")
     
+<<<<<<< HEAD
+    building = models.ForeignKey(Building, on_delete=models.PROTECT, related_name='residents', verbose_name="Tòa nhà", null=True, blank=True)
+    room = models.ForeignKey(Room, on_delete=models.PROTECT, related_name='residents', verbose_name="Căn hộ", null=True, blank=True)
+    
+=======
     building = models.ForeignKey('building.Building', on_delete=models.PROTECT, related_name='residents', verbose_name="Tòa nhà", null=True, blank=True)
     room = models.ForeignKey('building.Room', on_delete=models.PROTECT, related_name='residents', verbose_name="Căn hộ", null=True, blank=True)
+>>>>>>> 38612e30d27a7795c95f4f88511d5da09e8cf800
     class Meta:
         db_table = "resident"
         verbose_name = "Cư dân"
@@ -39,3 +45,9 @@ class Resident(BaseModel):
     
     def __str__(self):
         return f"{self.last_name} {self.first_name} ({self.citizen_id})"
+    
+    @property
+    def current_contract(self):
+        """Lấy hợp đồng hiện tại (đang hoạt động) của cư dân"""
+        from resident_manage.apps.contract.models import Contract
+        return self.contracts.filter(status__in=['active', 'will_expire']).first()

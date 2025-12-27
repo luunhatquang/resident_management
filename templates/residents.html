@@ -1,0 +1,286 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Cư dân - RMS System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-building"></i> RMS System
+        </div>
+        
+        <a href="{% url 'home' %}" class="menu-item">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
+        </div>
+        <a href="{% url 'residents' %}" class="menu-item active">
+            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+        </a>
+        <a href="{% url 'contracts' %}" class="menu-item">
+            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
+        </a>
+        <div class="menu-item">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
+        </div>
+        <div class="menu-item">
+            <i class="fa-solid fa-bell"></i> Thông báo
+        </div>
+        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <i class="fa-solid fa-users"></i> Quản lý Cư dân
+            </div>
+            <div class="user-profile">
+                <div class="notification-bell">
+                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
+                    <div class="badge">3</div>
+                </div>
+                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 14px;">
+                            {{ user.get_full_name|default:user.username }}
+                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
+                    </div>
+                    {% if user.profile and user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </header>
+
+        <!-- Dashboard Body -->
+        <div class="dashboard-container">
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Tổng cư dân</div>
+                    <div class="stat-value">{{ total }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Cư dân mới chuyển đến tháng này</div>
+                    <div class="stat-value" style="color: var(--status-empty);">{{ new_residents_this_month }}</div>
+                </div>
+                <!-- <div class="stat-card">
+                    <div class="stat-title">Cư dân chuyển đi tháng này</div>
+                    <div class="stat-value" style="color: #ef4444;">{{ residents_moved_out_this_month }}</div>
+                </div> -->
+            </div>
+
+            <!-- Filters & Actions -->
+            <div class="section-header">
+                <div class="filters">
+                    <input type="text" id="search-input" class="search-input" 
+                           placeholder="🔍 Tìm tên, CMND/CCCD, email, số điện thoại..." 
+                           value="{{ search_keyword }}"
+                           onkeypress="if(event.key==='Enter') applyFilters()">
+                    
+                    <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
+                    
+                    {% if search_keyword or address_filter or relationship_filter or room_filter or sign_date_from or sign_date_to %}
+                    <button class="btn-secondary" onclick="clearFilters()" style="padding: 10px 16px;" title="Xóa bộ lọc">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <!-- <button class="btn-primary" onclick="toggleFilters()" style="margin-left: 10px;">
+                    <i class="fa-solid fa-filter"></i> Bộ lọc nâng cao
+                </button> -->
+                
+                <button class="btn-primary" onclick="openAddModal()">
+                    <i class="fa-solid fa-plus"></i> Thêm cư dân
+                </button>
+            </div>
+
+            <!-- Residents Table -->
+            <div class="table-container" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table class="data-table" style="min-width: 1200px;">
+                    <thead>
+                        <tr>
+                            <th>Tên cư dân</th>
+                            <th>CMND/CCCD</th>
+                            <th>Số điện thoại</th>
+                            <th>Email</th>
+                            <th>Địa chỉ</th>
+                            <th>Quan hệ</th>
+                            <th>Căn hộ</th>
+                            <th>Ngày ký hợp đồng</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="residents-tbody">
+                        {% if residents %}
+                            {% for resident in residents %}
+                            <tr>
+                                <td><strong>{{ resident.last_name }} {{ resident.first_name }}</strong></td>
+                                <td>{{ resident.citizen_id|default:"--" }}</td>
+                                <td>{{ resident.phone_number|default:"--" }}</td>
+                                <td>{{ resident.email|default:"--" }}</td>
+                                <td>
+                                    <span title="{{ resident.address }}" style="max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ resident.address|default:"--" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if resident.relationship %}
+                                        <span class="status-badge" style="background: #e0e7ff; color: #4338ca; font-size: 12px;">
+                                            {{ resident.get_relationship_display }}
+                                        </span>
+                                    {% else %}
+                                        <span style="color: #999;">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if resident.room %}
+                                        <strong>{{ resident.room.number }}</strong><br>
+                                        <span style="font-size: 12px; color: #999;">{{ resident.room.building.name }}</span>
+                                    {% else %}
+                                        <span style="color: #999;">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if resident.current_contract %}
+                                        {{ resident.current_contract.sign_date|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span style="color: #999;">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if resident.room %}
+                                        {% if resident.current_contract and resident.current_contract.status == 'active' %}
+                                            <span class="status-badge status-active">Đang ở</span>
+                                        {% elif resident.current_contract and resident.current_contract.status == 'will_expire' %}
+                                            <span class="status-badge status-will-expire">Sắp rời đi</span>
+                                        {% else %}
+                                            <span class="status-badge status-pending">Chờ xác nhận</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="status-badge" style="background: #f3e8e8; color: #7c2d12;">Chưa xác định</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="viewResident({{ resident.id }})" title="Xem chi tiết">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="editResident({{ resident.id }})" title="Chỉnh sửa">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon btn-danger" onclick="deleteResident({{ resident.id }})" title="Xóa">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                                    <i class="fa-solid fa-inbox"></i><br>
+                                    {% if search_keyword %}
+                                        Không tìm thấy cư dân với từ khóa "{{ search_keyword }}"
+                                    {% else %}
+                                        Chưa có cư dân nào
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal: Resident Detail -->
+    <div id="resident-modal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2 id="modal-title">Chi tiết cư dân</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Họ tên:</label>
+                        <span id="detail-name">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>CMND/CCCD:</label>
+                        <span id="detail-citizen-id">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Số điện thoại:</label>
+                        <span id="detail-phone">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span id="detail-email">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Địa chỉ:</label>
+                        <span id="detail-address">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Căn hộ:</label>
+                        <span id="detail-room">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày ký hợp đồng:</label>
+                        <span id="detail-contract-date">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Trạng thái hợp đồng:</label>
+                        <span id="detail-contract-status" class="status-badge">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày bắt đầu:</label>
+                        <span id="detail-start-date">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày kết thúc:</label>
+                        <span id="detail-end-date">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">Đóng</button>
+                <button class="btn-primary" onclick="editResident()">
+                    <i class="fa-solid fa-edit"></i> Chỉnh sửa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/residents.js' %}"></script>
+</body>
+</html>
