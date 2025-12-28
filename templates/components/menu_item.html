@@ -1,0 +1,9 @@
+<!-- Menu Item Component -->
+{% comment %}
+Usage:
+{% include 'components/menu_item.html' with url_name='home' icon='fa-chart-line' label='Dashboard' path_match='home,dashboard' %}
+{% endcomment %}
+<a href="{% url url_name %}" class="menu-item {% if path_match in request.path or request.resolver_match.url_name in path_match|split:',' %}active{% endif %}">
+    <i class="fa-solid {{ icon }}"></i> {{ label }}
+</a>
+

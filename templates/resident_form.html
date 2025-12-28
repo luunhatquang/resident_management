@@ -1,12 +1,9 @@
-`{% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ action }} Cư dân - RMS System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Cư dân - RMS System{% endblock %}
+
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
     <style>
         .form-container {
@@ -59,76 +56,19 @@
             display: flex;
             justify-content: flex-end;
             gap: 12px;
-        }
-        .btn-primary, .btn-secondary {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #1e40af;
-            transform: translateY(-2px);
-        }
-        .btn-secondary {
-            background: #e2e8f0;
-            color: var(--text-main);
-        }
-        .btn-secondary:hover {
-            background: #cbd5e1;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
         }
     </style>
-</head>
-<body>
+{% endblock %}
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-building"></i> RMS System
-        </div>
-        
-        <a href="{% url 'home' %}" class="menu-item">
-            <i class="fa-solid fa-chart-pie"></i> Dashboard
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
-        </div>
-        <a href="{% url 'residents' %}" class="menu-item active">
-            <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
-        </a>
-        <a href="{% url 'contracts' %}" class="menu-item">
-            <i class="fa-solid fa-file-contract"></i> Hợp đồng Thuê
-        </a>
-        <div class="menu-item">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
-        </div>
-        <div class="menu-item">
-            <i class="fa-solid fa-bell"></i> Thông báo
-        </div>
-        <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
-            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-        </a>
-    </div>
+{% block header_icon %}<i class="fa-solid fa-users"></i>{% endblock %}
+{% block header_title %}{{ action }} Cư dân{% endblock %}
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <div class="header-title">
-                <i class="fa-solid fa-users"></i> {{ action }} Cư dân
-            </div>
-        </header>
-
-        <!-- Form Container -->
+{% block content %}
         <div class="dashboard-container">
             <div class="form-container">
-                <h2 style="margin-bottom: 20px;">{{ action }} Thông tin Cư dân</h2>
+        <h2 style="margin-bottom: 25px; color: var(--primary-color);">{{ action }} Thông tin Cư dân</h2>
                 
                 <form method="post" novalidate>
                     {% csrf_token %}
@@ -279,7 +219,7 @@
 
                     <!-- Form Actions -->
                     <div class="form-actions">
-                        <a href="{% url 'residents' %}" class="btn-secondary">
+                <a href="{% url 'residents' %}" class="btn-secondary" style="text-decoration: none;">
                             <i class="fa-solid fa-times"></i> Hủy
                         </a>
                         <button type="submit" class="btn-primary">
@@ -289,7 +229,4 @@
                 </form>
             </div>
         </div>
-    </div>
-
-</body>
-</html>
+{% endblock %}

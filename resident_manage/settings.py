@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "resident_manage.apps.building",                  
     "resident_manage.apps.invoice",     
     "resident_manage.apps.accounts",
+    "resident_manage.apps.operation",
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "resident_manage.core.context_processors.notification_context",
             ],
         },
     },
@@ -89,7 +91,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "resident_management",
         "USER": "root",
-        "PASSWORD": "230511.,",
+        "PASSWORD": "",
         "HOST": "localhost",
         "PORT": "3306",
         "OPTIONS": {

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Tên Model{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/[page-name].css' %}">
+{% endblock %}
+
+{% block header_icon %}
+<a href="{% url 'list_url' %}" class="link-back">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
+{% if 'Chỉnh sửa' in action %}
+    <i class="fa-solid fa-file-pen"></i>
+{% else %}
+    <i class="fa-solid fa-file-plus"></i>
+{% endif %}
+{% endblock %}
+
+{% block header_title %}{{ action }} Tên Model{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="form-group {% if field.name == 'description' or field.name == 'note' %}full-width{% endif %}">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}*{% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'list_url' %}" class="btn-secondary">Hủy</a>
+            <button type="submit" class="btn-primary">
+                {% if 'Chỉnh sửa' in action %}
+                    <i class="fa-solid fa-save"></i> Lưu thay đổi
+                {% else %}
+                    <i class="fa-solid fa-check"></i> Tạo mới
+                {% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+

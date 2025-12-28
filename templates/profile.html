@@ -4,88 +4,88 @@
 {% block title %}Hồ sơ cá nhân{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
 {% block header_icon %}<i class="fa-solid fa-user-circle"></i>{% endblock %}
 {% block header_title %}Hồ sơ cá nhân{% endblock %}
 
 {% block content %}
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-success">
-            <i class="fa-solid fa-check-circle"></i> {{ message }}
-        </div>
-    {% endfor %}
-{% endif %}
-
-<div class="profile-container">
-    <div class="profile-header">
-        <div class="profile-avatar-wrapper">
-            {% if user.profile.avatar %}
-                <img src="{{ user.profile.avatar.url }}" class="profile-avatar">
-            {% else %}
-                <div class="profile-avatar" style="display: flex; align-items: center; justify-content: center; font-size: 48px; color: #cbd5e1;">
-                    <i class="fa-solid fa-user"></i>
-                </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">
+                        <i class="fa-solid fa-check-circle"></i> {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
-            <div class="profile-info-header">
-                <h2 style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ user.get_full_name|default:user.username }}</h2>
-                <p style="color: rgba(255,255,255,0.8);">Hệ thống quản lý RMS</p>
-            </div>
-        </div>
-    </div>
 
-    <div class="profile-body">
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <div class="form-section">
-                <div class="form-section-title">
-                    <i class="fa-solid fa-user-gear"></i> Thông tin cơ bản
-                </div>
-                <div class="profile-grid">
-                    <div class="form-group">
-                        <label>Họ</label>
-                        <input type="text" name="last_name" value="{{ u_form.last_name.value|default:'' }}" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Tên</label>
-                        <input type="text" name="first_name" value="{{ u_form.first_name.value|default:'' }}" class="form-control">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Email</label>
-                        <input type="email" name="email" value="{{ u_form.email.value|default:'' }}" class="form-control">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-avatar-wrapper">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" class="profile-avatar">
+                        {% else %}
+                            <div class="profile-avatar" style="display: flex; align-items: center; justify-content: center; font-size: 48px; color: #cbd5e1;">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        {% endif %}
+                        <div class="profile-info-header">
+                            <h2 style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ user.get_full_name|default:user.username }}</h2>
+                            <p style="color: rgba(255,255,255,0.8);">Hệ thống quản lý RMS</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-section">
-                <div class="form-section-title">
-                    <i class="fa-solid fa-address-card"></i> Thông tin bổ sung
-                </div>
-                <div class="profile-grid">
-                    <div class="form-group">
-                        <label>Số điện thoại</label>
-                        <input type="text" name="phone_number" value="{{ p_form.phone_number.value|default:'' }}" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Ảnh đại diện</label>
-                        <input type="file" name="avatar" class="form-control" style="padding: 8px;">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Địa chỉ</label>
-                        <textarea name="address" class="form-control" rows="3">{{ p_form.address.value|default:'' }}</textarea>
-                    </div>
-                </div>
-            </div>
+                <div class="profile-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-user-gear"></i> Thông tin cơ bản
+                            </div>
+                            <div class="profile-grid">
+                                <div class="form-group">
+                                    <label>Họ</label>
+                                    <input type="text" name="last_name" value="{{ u_form.last_name.value|default:'' }}" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tên</label>
+                                    <input type="text" name="first_name" value="{{ u_form.first_name.value|default:'' }}" class="form-control">
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label>Email</label>
+                                    <input type="email" name="email" value="{{ u_form.email.value|default:'' }}" class="form-control">
+                                </div>
+                            </div>
+                        </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
-                <button type="submit" class="btn-save">
-                    <i class="fa-solid fa-save"></i> Lưu thay đổi
-                </button>
+                        <div class="form-section">
+                            <div class="form-section-title">
+                                <i class="fa-solid fa-address-card"></i> Thông tin bổ sung
+                            </div>
+                            <div class="profile-grid">
+                                <div class="form-group">
+                                    <label>Số điện thoại</label>
+                                    <input type="text" name="phone_number" value="{{ p_form.phone_number.value|default:'' }}" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ảnh đại diện</label>
+                                    <input type="file" name="avatar" class="form-control" style="padding: 8px;">
+                                </div>
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label>Địa chỉ</label>
+                                    <textarea name="address" class="form-control" rows="3">{{ p_form.address.value|default:'' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px;">
+                            <button type="submit" class="btn-save">
+                                <i class="fa-solid fa-save"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
 {% endblock %}

@@ -1,8 +1,6 @@
 <!-- Sidebar Navigation -->
 <div class="sidebar">
-    <div class="logo">
-        <i class="fa-solid fa-building"></i> RMS System
-    </div>
+    {% include 'components/logo.html' %}
     
     <a href="{% url 'home' %}" class="menu-item {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
         <i class="fa-solid fa-chart-line"></i> Dashboard
@@ -12,9 +10,9 @@
         <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
     </a>
     
-    <div class="menu-item">
+    <a href="{% url 'residents' %}" class="menu-item {% if 'resident' in request.path %}active{% endif %}">
         <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
-    </div>
+    </a>
     
     <a href="{% url 'contracts' %}" class="menu-item {% if 'contract' in request.path %}active{% endif %}">
         <i class="fa-solid fa-file-signature"></i> Hợp đồng Thuê
@@ -23,12 +21,16 @@
     <a href="{% url 'get_all_invoices' %}" class="menu-item {% if 'invoice' in request.path %}active{% endif %}">
         <i class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn
     </a>
+
+    <a href="{% url 'get_all_expenses' %}" class="menu-item {% if 'expense' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-wallet"></i> Chi phí vận hành
+    </a>
     
     <a href="{% url 'get_all_notifications' %}" class="menu-item {% if 'notification' in request.path %}active{% endif %}">
         <i class="fa-solid fa-bell"></i> Thông báo
     </a>
     
-    <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
+    <a href="{% url 'logout' %}" class="menu-item logout">
         <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
     </a>
 </div>

@@ -13,43 +13,57 @@
 {% block content %}
 <!-- Stats Cards -->
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-title">Tổng tòa nhà</div>
+    <div class="stat-card" style="border-top: 4px solid var(--primary-color);">
+        <div class="stat-title">
+            <i class="fa-solid fa-city" style="color: var(--primary-color); margin-right: 5px;"></i> Tổng tòa nhà
+        </div>
         <div class="stat-value">{{ buildings.count }}</div>
     </div>
-    <div class="stat-card">
-        <div class="stat-title">Đang hoạt động</div>
-        <div class="stat-value" style="color: var(--status-empty);">{{ active_count|default:"0" }}</div>
+    <div class="stat-card" style="border-top: 4px solid #10b981;">
+        <div class="stat-title">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; margin-right: 5px;"></i> Đang hoạt động
+        </div>
+        <div class="stat-value" style="color: #10b981;">{{ active_count|default:"0" }}</div>
     </div>
-    <div class="stat-card">
-        <div class="stat-title">Ngừng hoạt động</div>
-        <div class="stat-value" style="color: var(--status-occupied);">{{ inactive_count|default:"0" }}</div>
+    <div class="stat-card" style="border-top: 4px solid #ef4444;">
+        <div class="stat-title">
+            <i class="fa-solid fa-circle-xmark" style="color: #ef4444; margin-right: 5px;"></i> Ngừng hoạt động
+        </div>
+        <div class="stat-value" style="color: #ef4444;">{{ inactive_count|default:"0" }}</div>
     </div>
-    <div class="stat-card">
-        <div class="stat-title">Tổng phòng</div>
-        <div class="stat-value">{{ total_rooms|default:"0" }}</div>
+    <div class="stat-card" style="border-top: 4px solid #f59e0b;">
+        <div class="stat-title">
+            <i class="fa-solid fa-door-closed" style="color: #f59e0b; margin-right: 5px;"></i> Tổng phòng
+        </div>
+        <div class="stat-value" style="color: #f59e0b;">{{ total_rooms|default:"0" }}</div>
     </div>
 </div>
 
 <!-- Filters & Actions -->
-<div class="section-header">
-    <div class="filters">
-        <select id="filter-status" class="filter-select" onchange="applyFilters()">
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Đang hoạt động</option>
-            <option value="inactive">Ngừng hoạt động</option>
-        </select>
-        
-        <input type="text" id="search-input" class="search-input" 
-               placeholder="🔍 Tìm tên tòa nhà, mã..." 
-               onkeypress="if(event.key==='Enter') applyFilters()">
-        
-        <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
-            <i class="fa-solid fa-search"></i>
-        </button>
+<div class="section-header" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
+    <div class="filters" style="flex: 1;">
+        <div style="position: relative; display: flex; align-items: center; gap: 15px; width: 100%;">
+            <select id="filter-status" class="filter-select" onchange="applyFilters()" style="min-width: 180px;">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active">Đang hoạt động</option>
+                <option value="inactive">Ngừng hoạt động</option>
+            </select>
+            
+            <div style="position: relative; flex: 1; max-width: 400px;">
+                <i class="fa-solid fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                <input type="text" id="search-input" class="search-input" 
+                       placeholder="Tìm tên tòa nhà, mã..." 
+                       style="padding-left: 40px; width: 100%;"
+                       onkeypress="if(event.key==='Enter') applyFilters()">
+            </div>
+            
+            <button class="btn-secondary" onclick="applyFilters()" style="height: 42px; width: 42px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </div>
     </div>
     
-    <button class="btn-primary" onclick="openAddModal()">
+    <button class="btn-primary" onclick="openAddModal()" style="height: 42px; padding: 0 24px; font-weight: 600;">
         <i class="fa-solid fa-plus"></i> Thêm tòa nhà
     </button>
 </div>
@@ -82,57 +96,27 @@
             
             <div class="building-stats">
                 <div class="stat-item">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>{{ building.total_floors|default:"0" }} tầng</span>
+                    <i class="fa-solid fa-layer-group" style="color: #6366f1;"></i>
+                    <span style="font-weight: 600; color: var(--text-main);">{{ building.total_floors|default:"0" }}</span>
+                    <span>Tầng</span>
                 </div>
                 <div class="stat-item">
-                    <i class="fa-solid fa-door-open"></i>
-                    <span>{{ building.total_rooms|default:"0" }} phòng</span>
+                    <i class="fa-solid fa-door-open" style="color: #10b981;"></i>
+                    <span style="font-weight: 600; color: var(--text-main);">{{ building.total_rooms|default:"0" }}</span>
+                    <span>Phòng</span>
                 </div>
                 <div class="stat-item">
-                    <i class="fa-solid fa-check-circle"></i>
-                    <span>{{ building.total_availble_rooms|default:"0" }} trống</span>
+                    <i class="fa-solid fa-check-circle" style="color: #3b82f6;"></i>
+                    <span style="font-weight: 600; color: var(--text-main);">{{ building.total_availble_rooms|default:"0" }}</span>
+                    <span>Trống</span>
                 </div>
             </div>
-<<<<<<< HEAD
-            
             <div class="building-actions">
                 <button class="btn-icon" onclick="event.stopPropagation(); viewBuilding('{{ building.building_id }}')" title="Xem chi tiết">
                     <i class="fa-solid fa-eye"></i>
                 </button>
                 <button class="btn-icon" onclick="event.stopPropagation(); editBuilding('{{ building.building_id }}')" title="Chỉnh sửa">
                     <i class="fa-solid fa-edit"></i>
-=======
-
-            <!-- Filters & Actions -->
-            <div class="section-header">
-                <div class="filters">
-                    <select id="filter-status" class="filter-select" onchange="applyFilters()">
-                        <option value="" {% if not request.GET.status %}selected{% endif %}>
-                            Tất cả trạng thái
-                        </option>
-
-                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>
-                            Đang hoạt động
-                        </option>
-
-                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>
-                            Ngừng hoạt động
-                        </option>
-                    </select>
-                    
-                    <input type="text" name="q" id="search-input" class="search-input" 
-                           placeholder="Tìm tên tòa nhà, mã..." 
-                           onkeypress="if(event.key==='Enter') applyFilters()">
-                    
-                    <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
-                        <i class="fa-solid fa-search"></i>
-                    </button>
-                </div>
-                
-                <button class="btn-primary" onclick="openAddModal()">
-                    <i class="fa-solid fa-plus"></i> Thêm tòa nhà
->>>>>>> 38612e30d27a7795c95f4f88511d5da09e8cf800
                 </button>
             </div>
         </div>

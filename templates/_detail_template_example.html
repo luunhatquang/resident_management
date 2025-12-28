@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chi tiết {{ object.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/[page-name].css' %}">
+{% endblock %}
+
+{% block header_icon %}
+<a href="{% url 'list_url' %}" class="link-back">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
+<i class="fa-solid fa-icon"></i>
+{% endblock %}
+
+{% block header_title %}Chi tiết{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-header">
+        <h2>{{ object.name }}</h2>
+        <span class="status-badge-large status-{{ object.status }}">
+            {{ object.get_status_display }}
+        </span>
+    </div>
+
+    <!-- Section: Thông tin chính -->
+    <div class="info-section">
+        <h3><i class="fa-solid fa-file-lines"></i> Thông tin chính</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Trường 1</label>
+                <span>{{ object.field1 }}</span>
+            </div>
+            <div class="info-item">
+                <label>Trường 2</label>
+                <span>{{ object.field2 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <a href="{% url 'list_url' %}" class="btn-secondary">Quay lại</a>
+        <a href="{% url 'edit_url' pk=object.pk %}" class="btn-primary">
+            <i class="fa-solid fa-edit"></i> Chỉnh sửa
+        </a>
+        <a href="{% url 'delete_url' pk=object.pk %}" class="btn-danger">
+            <i class="fa-solid fa-trash"></i> Xóa
+        </a>
+    </div>
+</div>
+{% endblock %}
+
