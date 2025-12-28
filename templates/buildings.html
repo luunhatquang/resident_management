@@ -94,18 +94,9 @@
                     <span>{{ building.total_availble_rooms|default:"0" }} trống</span>
                 </div>
             </div>
-<<<<<<< HEAD
-            
-            <div class="building-actions">
-                <button class="btn-icon" onclick="event.stopPropagation(); viewBuilding('{{ building.building_id }}')" title="Xem chi tiết">
-                    <i class="fa-solid fa-eye"></i>
-                </button>
-                <button class="btn-icon" onclick="event.stopPropagation(); editBuilding('{{ building.building_id }}')" title="Chỉnh sửa">
-                    <i class="fa-solid fa-edit"></i>
-=======
 
             <!-- Filters & Actions -->
-            <div class="section-header">
+            <!-- <div class="section-header">
                 <div class="filters">
                     <select id="filter-status" class="filter-select" onchange="applyFilters()">
                         <option value="" {% if not request.GET.status %}selected{% endif %}>
@@ -132,9 +123,8 @@
                 
                 <button class="btn-primary" onclick="openAddModal()">
                     <i class="fa-solid fa-plus"></i> Thêm tòa nhà
->>>>>>> 38612e30d27a7795c95f4f88511d5da09e8cf800
                 </button>
-            </div>
+            </div> -->
         </div>
         {% endfor %}
     {% else %}

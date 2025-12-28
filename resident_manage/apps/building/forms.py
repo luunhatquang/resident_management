@@ -17,12 +17,11 @@ class BuildingForm(forms.ModelForm):
             'status'
         ]
         
-        # Mapping các input field của Django với class CSS trong file HTML của bạn
         widgets = {
             'building_id': forms.TextInput(attrs={
                 'class': 'form-input',
                 'placeholder': 'Nhập mã tòa nhà (VD: B01)',
-                'autofocus': 'autofocus' # Tự động focus khi vào trang
+                'autofocus': 'autofocus' 
             }),
             'name': forms.TextInput(attrs={
                 'class': 'form-input',
@@ -32,7 +31,7 @@ class BuildingForm(forms.ModelForm):
                 'class': 'form-input',
                 'rows': 3,
                 'placeholder': 'Nhập địa chỉ chi tiết',
-                'style': 'resize: vertical;' # Cho phép kéo giãn chiều dọc
+                'style': 'resize: vertical;' 
             }),
             'total_floors': forms.NumberInput(attrs={
                 'class': 'form-input',
@@ -49,16 +48,13 @@ class BuildingForm(forms.ModelForm):
                 'min': '0',
                 'placeholder': '0'
             }),
-            # Select box cho trạng thái
             'status': forms.Select(attrs={
                 'class': 'form-select'
             }),
         }
 
-    # (Optional) Hàm clean để validate logic riêng nếu cần
     def clean_building_id(self):
         building_id = self.cleaned_data.get('building_id')
-        # Kiểm tra trùng lặp (dù unique=True đã check, nhưng check ở đây để custom lỗi)
         if Building.objects.filter(building_id=building_id).exists() and not self.instance.pk:
             raise forms.ValidationError("Mã tòa nhà này đã tồn tại.")
         return building_id
@@ -66,7 +62,6 @@ class BuildingForm(forms.ModelForm):
 class RoomCreateForm(forms.ModelForm):
     class Meta:
         model = Room
-        # Những trường cần nhập khi tạo mới
         fields = [
             'room_id', 
             'building', 
@@ -75,10 +70,10 @@ class RoomCreateForm(forms.ModelForm):
             'room_area', 
             'rent_price', 
             'type_listing', 
-            'status'
-            # Lưu ý: Mình tạm ẩn 'owner' và 'room_residents' lúc tạo mới 
-            # vì thường tạo phòng xong mới gán người vào sau. 
-            # Nếu bạn muốn gán luôn thì thêm vào list này.
+            'status',
+            'bedroom_count',
+            'bathroom_count',
+            'owner'
         ]
         
         widgets = {
@@ -101,7 +96,7 @@ class RoomCreateForm(forms.ModelForm):
             }),
             'room_area': forms.NumberInput(attrs={
                 'class': 'form-input',
-                'step': '0.01', # Cho phép nhập số lẻ
+                'step': '0.01',
                 'placeholder': 'Diện tích (m²)'
             }),
             'rent_price': forms.NumberInput(attrs={
@@ -115,9 +110,21 @@ class RoomCreateForm(forms.ModelForm):
             'status': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'bedroom_count': forms.NumberInput(attrs={
+                'class': 'form-input',
+                'min': '0',
+                'placeholder': 'Số phòng ngủ'
+            }),
+            'bathroom_count': forms.NumberInput(attrs={
+                'class': 'form-input',
+                'min': '0',
+                'placeholder': 'Số phòng tắm'
+            }),
+            'owner': forms.Select(attrs={
+                'class': 'form-select'
+            }),
         }
 
-    # 1. Validate Mã phòng (Unique globally)
     def clean_room_id(self):
         room_id = self.cleaned_data.get('room_id')
         if Room.objects.filter(room_id=room_id).exists():
@@ -127,21 +134,18 @@ class RoomCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RoomCreateForm, self).__init__(*args, **kwargs)
         
-        # Nếu có dữ liệu initial 'building', khóa field đó lại
         if self.initial.get('building'):
             self.fields['building'].disabled = True
             self.fields['building'].widget.attrs['style'] = 'background-color: #e9ecef; cursor: not-allowed;'
 
-    # 2. Validate logic: Một tòa nhà không được có 2 phòng trùng số (VD: 2 phòng 101)
     def clean(self):
         cleaned_data = super().clean()
         building = cleaned_data.get('building')
         room_number = cleaned_data.get('room_number')
 
         if building and room_number:
-            # Kiểm tra xem trong tòa nhà này đã có số phòng này chưa
             if Room.objects.filter(building=building, room_number=room_number).exists():
-                # Gán lỗi vào trường room_number
+
                 self.add_error('room_number', f"Phòng số {room_number} đã tồn tại trong tòa nhà {building.name}.")
         
         return cleaned_data
@@ -158,7 +162,48 @@ class RoomForm(ModelForm):
         fields = ['building', 'room_number', 'status', 'owner']
 
 
-class RoomUpdateForm(ModelForm):
+from django import forms
+from .models import Room
+
+class RoomUpdateForm(forms.ModelForm):
     class Meta:
         model = Room
-        fields = ['status', 'owner', 'room_residents']
+        fields = [
+            'room_number',    # Số phòng
+            'floor_number',   # Số tầng
+            'room_area',      # Diện tích
+            'type_listing',   # Loại hình
+            'rent_price',     # Giá
+            'status',         # Trạng thái
+            'owner',          # Chủ sở hữu
+            'room_residents',
+            'bedroom_count',
+            'bathroom_count',
+        ]
+
+        widgets = {
+            'room_number': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Nhập số phòng'
+            }),
+            'floor_number': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nhập số tầng'
+            }),
+            'room_area': forms.NumberInput(attrs={'class': 'form-control'}),
+            'rent_price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'type_listing': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'owner': forms.Select(attrs={'class': 'form-control'}),
+            'room_residents': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'bedroom_count': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'placeholder': 'Số phòng ngủ'
+            }),
+            'bathroom_count': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'placeholder': 'Số phòng tắm'
+            }),
+        }
