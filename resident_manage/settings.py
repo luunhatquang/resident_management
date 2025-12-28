@@ -89,7 +89,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "resident_management",
         "USER": "root",
-        "PASSWORD": "230511.,",
+        "PASSWORD": "",
         "HOST": "localhost",
         "PORT": "3306",
         "OPTIONS": {

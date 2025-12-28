@@ -12,9 +12,9 @@
         <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
     </a>
     
-    <div class="menu-item">
+    <a href="{% url 'residents' %}" class="menu-item">
         <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
-    </div>
+    </a>
     
     <a href="{% url 'contracts' %}" class="menu-item {% if 'contract' in request.path %}active{% endif %}">
         <i class="fa-solid fa-file-signature"></i> Hợp đồng Thuê
