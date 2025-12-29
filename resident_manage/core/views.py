@@ -25,8 +25,10 @@ def room_detail_api(request, room_id):
             })
             
         data = {
+            'room_id': room.room_id,
             'room_number': room.room_number,
             'floor_number': room.floor_number,
+            'building_name': room.building.name,
             'area': str(room.room_area),
             'status': room.get_status_display(),
             'status_code': room.status,

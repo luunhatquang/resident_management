@@ -13,7 +13,6 @@ from .form import InvoiceForm, InvoiceUpdateForm
 @login_required(login_url='login')
 def getAllInvoices(request):
     invoices = Invoice.objects.select_related('room', 'resident', 'contract', 'room__building').all()
-    
     status_filter = request.GET.get('status', '')
     service_filter = request.GET.get('service', '')
     building_filter = request.GET.get('building', '')

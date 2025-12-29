@@ -43,7 +43,7 @@
 <div class="section-header" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
     <div class="filters" style="flex: 1;">
         <div style="position: relative; display: flex; align-items: center; gap: 15px; width: 100%;">
-            <select id="filter-status" class="filter-select" onchange="applyFilters()" style="min-width: 180px;">
+            <select id="filter-status" class="filter-select" style="min-width: 180px;">
                 <option value="">Tất cả trạng thái</option>
                 <option value="active">Đang hoạt động</option>
                 <option value="inactive">Ngừng hoạt động</option>
@@ -57,8 +57,8 @@
                        onkeypress="if(event.key==='Enter') applyFilters()">
             </div>
             
-            <button class="btn-secondary" onclick="applyFilters()" style="height: 42px; width: 42px; display: flex; align-items: center; justify-content: center; padding: 0;">
-                <i class="fa-solid fa-magnifying-glass"></i>
+            <button class="btn-secondary" onclick="applyFilters()" style="height: 42px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-filter"></i> Lọc
             </button>
         </div>
     </div>

@@ -42,9 +42,9 @@
                            onkeypress="if(event.key==='Enter') applyFilters()">
                 </div>
                     
-                <button class="btn-secondary" onclick="applyFilters()" style="height: 42px; width: 42px; display: flex; align-items: center; justify-content: center; padding: 0;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
+                <button class="btn-secondary" onclick="applyFilters()" style="height: 42px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-filter"></i> Lọc
+                </button>
                     
                     {% if search_keyword or address_filter or relationship_filter or room_filter or sign_date_from or sign_date_to %}
                 <button class="btn-secondary" onclick="clearFilters()" style="height: 42px; width: 42px; display: flex; align-items: center; justify-content: center; padding: 0;" title="Xóa bộ lọc">
