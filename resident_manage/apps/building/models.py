@@ -34,6 +34,8 @@ class Room(BaseModel):
     floor_number = models.PositiveIntegerField(verbose_name="Số tầng")
     room_number = models.CharField(max_length=10, verbose_name="Số phòng")
     room_area = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Diện tích phòng")
+    bedroom_count = models.PositiveIntegerField(verbose_name="Số phòng ngủ")
+    bathroom_count = models.PositiveIntegerField(verbose_name="Số phòng tắm")
     room_residents = models.ManyToManyField('resident.Resident', related_name='room_residents', blank=True, verbose_name="Thành viên")
     rent_price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Giá thuê", default=0.0)
 
