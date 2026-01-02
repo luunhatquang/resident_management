@@ -12,7 +12,11 @@
         <i class="fa-solid fa-city"></i> Quản lý Tòa nhà
     </a>
     
-    <a href="{% url 'residents' %}" class="menu-item">
+    <!-- <div class="menu-item">
+        <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
+    </div> -->
+
+    <a href="{% url 'residents' %}" class="menu-item {% if 'residents' in request.path %}active{% endif %}">
         <i class="fa-solid fa-users"></i> Hồ sơ Cư dân
     </a>
     

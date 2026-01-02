@@ -88,7 +88,7 @@
 <body>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <!-- <div class="sidebar">
         <div class="logo">
             <i class="fa-solid fa-building"></i> RMS System
         </div>
@@ -114,7 +114,8 @@
         <a href="{% url 'logout' %}" class="menu-item" style="margin-top: auto; color: #ef4444; text-decoration: none;">
             <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
         </a>
-    </div>
+    </div> -->
+     {% include 'components/sidebar.html' %}
 
     <!-- Main Content -->
     <div class="main-content">
