@@ -32,8 +32,10 @@ def getAllBuildings(request):
     inactive_count = Building.objects.filter(status='inactive').count()
     
     # Tính tổng phòng (xử lý trường hợp None nếu DB rỗng)
-    total_rooms_agg = Building.objects.aggregate(Sum('total_rooms'))
-    total_rooms = total_rooms_agg['total_rooms__sum'] if total_rooms_agg['total_rooms__sum'] else 0
+    # total_rooms_agg = Building.objects.aggregate(Sum('total_rooms'))
+    # total_rooms = total_rooms_agg['total_rooms__sum'] if total_rooms_agg['total_rooms__sum'] else 0
+    total_rooms = Room.objects.count();
+    total_availble_rooms = Room.objects.filter(status = "active").count();
 
     # --- PHẦN 2: LỌC DANH SÁCH HIỂN THỊ (Bị ảnh hưởng bởi bộ lọc) ---
     buildings = Building.objects.all().order_by('-building_id') # Mặc định lấy hết
@@ -131,6 +133,8 @@ def updateBuilding(request, building_id):
 @login_required(login_url='login')
 def getBuildingDetails(request, building_id):
     building = Building.objects.get(building_id=building_id)
+    # total_rooms = building.room_set.count();
+    # total_availble_rooms = building.room_set.filter(status="avaible").count()
     context = {"building":building}
     return render(request, 'building_detail.html', context)
 

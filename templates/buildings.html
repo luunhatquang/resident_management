@@ -34,15 +34,29 @@
 <!-- Filters & Actions -->
 <div class="section-header">
     <div class="filters">
+
         <select id="filter-status" class="filter-select" onchange="applyFilters()">
-            <option value="">Tất cả trạng thái</option>
-            <option value="active">Đang hoạt động</option>
-            <option value="inactive">Ngừng hoạt động</option>
+    
+            <option value="" {% if not request.GET.status %}selected{% endif %}>
+                Tất cả trạng thái
+            </option>
+            
+            <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>
+                Đang hoạt động
+            </option>
+            
+            <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>
+                Ngừng hoạt động
+            </option>
+
         </select>
         
-        <input type="text" id="search-input" class="search-input" 
-               placeholder="🔍 Tìm tên tòa nhà, mã..." 
-               onkeypress="if(event.key==='Enter') applyFilters()">
+
+        <input type="text" 
+            id="search-input" class="search-input"
+            placeholder="🔍 Tìm tên tòa nhà, mã..." 
+            value="{{ request.GET.search|default:'' }}" 
+            onkeypress="if(event.key==='Enter') applyFilters()">
         
         <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
             <i class="fa-solid fa-search"></i>
@@ -87,11 +101,11 @@
                 </div>
                 <div class="stat-item">
                     <i class="fa-solid fa-door-open"></i>
-                    <span>{{ building.total_rooms|default:"0" }} phòng</span>
+                    <span>{{ total_rooms|default:"0" }} phòng</span>
                 </div>
                 <div class="stat-item">
                     <i class="fa-solid fa-check-circle"></i>
-                    <span>{{ building.total_availble_rooms|default:"0" }} trống</span>
+                    <span>{{ total_availble_rooms|default:"0" }} trống</span>
                 </div>
             </div>
 

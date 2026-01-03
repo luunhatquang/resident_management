@@ -12,8 +12,8 @@ class BuildingForm(forms.ModelForm):
             'name', 
             'address', 
             'total_floors', 
-            'total_rooms', 
-            'total_availble_rooms', 
+            # 'total_rooms', 
+            # 'total_availble_rooms', 
             'status'
         ]
         
@@ -38,16 +38,16 @@ class BuildingForm(forms.ModelForm):
                 'min': '1',
                 'placeholder': '0'
             }),
-            'total_rooms': forms.NumberInput(attrs={
-                'class': 'form-input',
-                'min': '0',
-                'placeholder': '0'
-            }),
-            'total_availble_rooms': forms.NumberInput(attrs={
-                'class': 'form-input',
-                'min': '0',
-                'placeholder': '0'
-            }),
+            # 'total_rooms': forms.NumberInput(attrs={
+            #     'class': 'form-input',
+            #     'min': '0',
+            #     'placeholder': '0'
+            # }),
+            # 'total_availble_rooms': forms.NumberInput(attrs={
+            #     'class': 'form-input',
+            #     'min': '0',
+            #     'placeholder': '0'
+            # }),
             'status': forms.Select(attrs={
                 'class': 'form-select'
             }),
@@ -58,6 +58,7 @@ class BuildingForm(forms.ModelForm):
         if Building.objects.filter(building_id=building_id).exists() and not self.instance.pk:
             raise forms.ValidationError("Mã tòa nhà này đã tồn tại.")
         return building_id
+
         
 class RoomCreateForm(forms.ModelForm):
     class Meta:
@@ -147,23 +148,66 @@ class RoomCreateForm(forms.ModelForm):
             if Room.objects.filter(building=building, room_number=room_number).exists():
 
                 self.add_error('room_number', f"Phòng số {room_number} đã tồn tại trong tòa nhà {building.name}.")
-        
-        return cleaned_data
-    
 class BuildingUpdateForm(ModelForm):
     class Meta:
         model = Building
-        fields = ['name', 'address', 'total_floors', 'status']
+        fields = [
+            'building_id', 
+            'name', 
+            'address', 
+            'total_floors', 
+            # 'total_rooms', 
+            # 'total_availble_rooms', 
+            'status'
+        ]
         
+        widgets = {
+            'building_id': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Nhập mã tòa nhà (VD: B01)',
+                'autofocus': 'autofocus' 
+            }),
+            'name': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Nhập tên tòa nhà'
+            }),
+            'address': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 3,
+                'placeholder': 'Nhập địa chỉ chi tiết',
+                'style': 'resize: vertical;' 
+            }),
+            'total_floors': forms.NumberInput(attrs={
+                'class': 'form-input',
+                'min': '1',
+                'placeholder': '0'
+            }),
+            # 'total_rooms': forms.NumberInput(attrs={
+            #     'class': 'form-input',
+            #     'min': '0',
+            #     'placeholder': '0' 
+            # }),
+            # 'total_availble_rooms': forms.NumberInput(attrs={
+            #     'class': 'form-input',
+            #     'min': '0',
+            #     'placeholder': '0'
+            # }),
+            'status': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+        }
+
+    def clean_building_id(self):
+        building_id = self.cleaned_data.get('building_id')
+        if Building.objects.filter(building_id=building_id).exists() and not self.instance.pk:
+            raise forms.ValidationError("Mã tòa nhà này đã tồn tại.")
+        return building_id
+    
 
 class RoomForm(ModelForm):
     class Meta:
         model = Room
         fields = ['building', 'room_number', 'status', 'owner']
-
-
-from django import forms
-from .models import Room
 
 class RoomUpdateForm(forms.ModelForm):
     class Meta:
