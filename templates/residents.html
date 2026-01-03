@@ -71,7 +71,6 @@
                             <th>Địa chỉ</th>
                             <th>Quan hệ</th>
                             <th>Căn hộ</th>
-                            <th>Ngày ký hợp đồng</th>
                             <th>Trạng thái</th>
                             <th>Hành động</th>
                         </tr>
@@ -107,23 +106,12 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if resident.current_contract %}
-                                        {{ resident.current_contract.sign_date|date:"d/m/Y" }}
+                                    {% if resident.status == 'living' %}
+                                        <span class="status-badge" style="background: #d1fae5; color: #065f46;">Đang sống</span>
+                                    {% elif resident.status == 'moved_out' %}
+                                        <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Đã chuyển đi</span>
                                     {% else %}
                                         <span style="color: #999;">--</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if resident.room %}
-                                        {% if resident.current_contract and resident.current_contract.status == 'active' %}
-                                            <span class="status-badge status-active">Đang ở</span>
-                                        {% elif resident.current_contract and resident.current_contract.status == 'will_expire' %}
-                                            <span class="status-badge status-will-expire">Sắp rời đi</span>
-                                        {% else %}
-                                            <span class="status-badge status-pending">Chờ xác nhận</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="status-badge" style="background: #f3e8e8; color: #7c2d12;">Chưa xác định</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -192,6 +180,10 @@
                     <div class="info-item">
                         <label>Căn hộ:</label>
                         <span id="detail-room">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Trạng thái cư dân:</label>
+                        <span id="detail-resident-status" class="status-badge">--</span>
                     </div>
                     <div class="info-item">
                         <label>Ngày ký hợp đồng:</label>

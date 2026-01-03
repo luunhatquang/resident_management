@@ -18,6 +18,12 @@ class Resident(BaseModel):
     email = models.EmailField(max_length=100, verbose_name="Email", null=True, blank=True)
     address = models.CharField(max_length=255, verbose_name="Địa chỉ")
     
+    STATUS_CHOICES = [
+        ('living', 'Đang sống'),
+        ('moved_out', 'Đã chuyển đi'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='living', verbose_name="Trạng thái")
+    
     RELATIONSHIP_CHOICES = [
         ('owner', 'Chủ hộ'),
         ('spouse', 'Vợ/Chồng'),
@@ -41,8 +47,4 @@ class Resident(BaseModel):
     def __str__(self):
         return f"{self.last_name} {self.first_name} ({self.citizen_id})"
     
-    @property
-    def current_contract(self):
-        """Lấy hợp đồng hiện tại (đang hoạt động) của cư dân"""
-        from resident_manage.apps.contract.models import Contract
-        return self.contracts.filter(status__in=['active', 'will_expire']).first()
+    

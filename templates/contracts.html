@@ -1,5 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Hợp đồng - RMS System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
+</head>
+<body>
 
 {% block title %}Quản lý Hợp đồng{% endblock %}
 
@@ -7,8 +18,36 @@
     <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
 {% endblock %}
 
-{% block header_icon %}<i class="fa-solid fa-file-signature"></i>{% endblock %}
-{% block header_title %}Quản lý Hợp đồng{% endblock %}
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <i class="fa-solid fa-file-contract"></i> Quản lý Hợp đồng
+            </div>
+            <div class="user-profile">
+                <div class="notification-bell">
+                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
+                    <div class="badge">3</div>
+                </div>
+                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 14px;">
+                            {{ user.get_full_name|default:user.username }}
+                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
+                    </div>
+                    {% if user.profile and user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </header>
 
 {% block content %}
 <div class="page-container">
