@@ -51,11 +51,11 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-title">Tổng cư dân</div>
-                    <div class="stat-value">{{ total }}</div>
+                    <div class="stat-value">{{ living_total }}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-title">Cư dân mới chuyển đến tháng này</div>
-                    <div class="stat-value" style="color: var(--status-empty);">{{ new_residents_this_month }}</div>
+                    <div class="stat-value" style="color: var(--status-empty);">{{ living_new_residents_this_month }}</div>
                 </div>
                 <!-- <div class="stat-card">
                     <div class="stat-title">Cư dân chuyển đi tháng này</div>
@@ -66,6 +66,16 @@
             <!-- Filters & Actions -->
             <div class="section-header">
                 <div class="filters">
+
+                    <select id="status-filter" class="search-input" style="width: auto; min-width: 150px;" onchange="applyFilters()">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    
                     <input type="text" id="search-input" class="search-input" 
                            placeholder="🔍 Tìm tên, CMND/CCCD, email, số điện thoại..." 
                            value="{{ search_keyword }}"
@@ -75,7 +85,7 @@
                         <i class="fa-solid fa-search"></i>
                     </button>
                     
-                    {% if search_keyword or address_filter or relationship_filter or room_filter or sign_date_from or sign_date_to %}
+                    {% if search_keyword or status_filter %}
                     <button class="btn-secondary" onclick="clearFilters()" style="padding: 10px 16px;" title="Xóa bộ lọc">
                         <i class="fa-solid fa-times"></i>
                     </button>
@@ -103,7 +113,6 @@
                             <th>Địa chỉ</th>
                             <th>Quan hệ</th>
                             <th>Căn hộ</th>
-                            <th>Ngày ký hợp đồng</th>
                             <th>Trạng thái</th>
                             <th>Hành động</th>
                         </tr>
@@ -132,30 +141,19 @@
                                 </td>
                                 <td>
                                     {% if resident.room %}
-                                        <strong>{{ resident.room.number }}</strong><br>
+                                        <strong>{{ resident.room.room_number }}</strong><br>
                                         <span style="font-size: 12px; color: #999;">{{ resident.room.building.name }}</span>
                                     {% else %}
                                         <span style="color: #999;">--</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if resident.current_contract %}
-                                        {{ resident.current_contract.sign_date|date:"d/m/Y" }}
+                                    {% if resident.status == 'living' %}
+                                        <span class="status-badge" style="background: #d1fae5; color: #065f46;">Đang sống</span>
+                                    {% elif resident.status == 'moved_out' %}
+                                        <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Đã chuyển đi</span>
                                     {% else %}
                                         <span style="color: #999;">--</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if resident.room %}
-                                        {% if resident.current_contract and resident.current_contract.status == 'active' %}
-                                            <span class="status-badge status-active">Đang ở</span>
-                                        {% elif resident.current_contract and resident.current_contract.status == 'will_expire' %}
-                                            <span class="status-badge status-will-expire">Sắp rời đi</span>
-                                        {% else %}
-                                            <span class="status-badge status-pending">Chờ xác nhận</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="status-badge" style="background: #f3e8e8; color: #7c2d12;">Chưa xác định</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -225,6 +223,10 @@
                     <div class="info-item">
                         <label>Căn hộ:</label>
                         <span id="detail-room">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Trạng thái cư dân:</label>
+                        <span id="detail-resident-status" class="status-badge">--</span>
                     </div>
                     <div class="info-item">
                         <label>Ngày ký hợp đồng:</label>

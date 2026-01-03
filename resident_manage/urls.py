@@ -11,7 +11,7 @@ from resident_manage.apps.contract.views import (
     contract_delete_view
 )
 from resident_manage.apps.resident.views import (residents_view, resident_create_view, resident_detail_view,
-resident_edit_view, resident_delete_view)
+resident_edit_view, resident_delete_view, resident_update_status_view)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -35,7 +35,8 @@ urlpatterns = [
     path('residents/add/', resident_create_view, name='resident_create'),
     path('residents/<int:pk>/', resident_detail_view, name='resident_detail'),
     path('residents/<int:pk>/edit/', resident_edit_view, name='resident_edit'),
-    path('residents/<int:pk>/delete/', resident_delete_view, name='resident_delete'),
+    path('residents/<int:pk>/update-status/', resident_update_status_view, name='resident_update_status'),
+    
 
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),

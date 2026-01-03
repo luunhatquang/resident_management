@@ -16,11 +16,13 @@ function toggleFilters() {
  */
 function applyFilters() {
     const searchText = document.getElementById('search-input').value.trim();
+    const statusFilter = document.getElementById('status-filter').value.trim();
     
     // Build URL với query params
     const params = new URLSearchParams();
     
     if (searchText) params.set('search', searchText);
+    if (statusFilter) params.set('status', statusFilter);
     
     // Redirect
     const url = params.toString() ? `?${params.toString()}` : window.location.pathname;
@@ -92,20 +94,30 @@ function editResident(id) {
 }
 
 /**
- * Delete Resident - Redirect đến trang xóa
+ * Delete Resident - Chuyển trạng thái thành "Đã chuyển đi"
  */
 function deleteResident(id) {
-    if (confirm('Bạn có chắc muốn xóa cư dân này?\n\nLưu ý: Hành động này không thể hoàn tác!')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/residents/${id}/delete/`;
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrfmiddlewaretoken';
-        csrfInput.value = getCookie('csrftoken');
-        form.appendChild(csrfInput);
-        document.body.appendChild(form);
-        form.submit();
+    if (confirm('Bạn có chắc muốn đánh dấu cư dân này là đã chuyển đi?')) {
+        fetch(`/residents/${id}/update-status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ status: 'moved_out' })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Cập nhật trạng thái thành công!');
+                location.reload();
+            } else {
+                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra. Vui lòng thử lại!');
+        });
     }
 }
 
@@ -136,10 +148,8 @@ function formatCurrency(amount) {
  */
 function getStatusText(status) {
     const statusMap = {
-        'active': 'Đang ở',
-        'will_expire': 'Sắp rời đi',
-        'pending': 'Chờ xác nhận',
-        'unassigned': 'Chưa xác định'
+        'living': 'Đang sống',
+        'moved_out': 'Đã chuyển đi'
     };
     return statusMap[status] || status;
 }
