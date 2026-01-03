@@ -11,14 +11,6 @@
 {% block header_title %}Hồ sơ cá nhân{% endblock %}
 
 {% block content %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-success">
-                        <i class="fa-solid fa-check-circle"></i> {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
             <div class="profile-container">
                 <div class="profile-header">
                     <div class="profile-avatar-wrapper">

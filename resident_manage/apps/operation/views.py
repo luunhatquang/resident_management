@@ -15,6 +15,7 @@ def get_all_expenses(request):
     date_from = request.GET.get('date_from', '')
     date_to = request.GET.get('date_to', '')
     recorded_by_filter = request.GET.get('recorded_by', '')
+    category_filter = request.GET.get('category_type', '')
     
     if building_filter:
         expenses = expenses.filter(building__id=building_filter)
@@ -24,6 +25,8 @@ def get_all_expenses(request):
         expenses = expenses.filter(date__lte=date_to)
     if recorded_by_filter:
         expenses = expenses.filter(recorded_by__id=recorded_by_filter)
+    if category_filter:
+        expenses = expenses.filter(category_type=category_filter)
         
     expenses = expenses.order_by('-date', '-created_at')
     
@@ -81,6 +84,8 @@ def get_all_expenses(request):
         'buildings': buildings,
         'selected_user': recorded_by_filter,
         'selected_building': building_filter,
+        'selected_category': category_filter,
+        'category_choices': OperationExpense.TYPE_CATEGORY,
     }
     return render(request, 'operation/expenses.html', context)
 

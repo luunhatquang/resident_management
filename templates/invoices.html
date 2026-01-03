@@ -115,49 +115,49 @@
     <div class="section-header">
         <div class="filters">
             <select id="filter-status" class="filter-select">
-                <option value="">Tất cả trạng thái</option>
-                <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Đã thanh toán</option>
-                <option value="unpaid" {% if selected_status == 'unpaid' %}selected{% endif %}>Chưa thanh toán</option>
-                <option value="overdue" {% if selected_status == 'overdue' %}selected{% endif %}>Quá hạn</option>
-            </select>
-            
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Đã thanh toán</option>
+                    <option value="unpaid" {% if selected_status == 'unpaid' %}selected{% endif %}>Chưa thanh toán</option>
+                    <option value="overdue" {% if selected_status == 'overdue' %}selected{% endif %}>Quá hạn</option>
+                </select>
+                
             <select id="filter-service" class="filter-select">
-                <option value="">Tất cả dịch vụ</option>
-                <option value="rent" {% if selected_service == 'rent' %}selected{% endif %}>Tiền thuê phòng</option>
-                <option value="electricity" {% if selected_service == 'electricity' %}selected{% endif %}>Điện</option>
-                <option value="water" {% if selected_service == 'water' %}selected{% endif %}>Nước</option>
-                <option value="internet" {% if selected_service == 'internet' %}selected{% endif %}>Internet</option>
-                <option value="maintenance" {% if selected_service == 'maintenance' %}selected{% endif %}>Bảo trì</option>
-                <option value="other" {% if selected_service == 'other' %}selected{% endif %}>Khác</option>
-            </select>
-            
+                    <option value="">Tất cả dịch vụ</option>
+                    <option value="rent" {% if selected_service == 'rent' %}selected{% endif %}>Tiền thuê phòng</option>
+                    <option value="electricity" {% if selected_service == 'electricity' %}selected{% endif %}>Điện</option>
+                    <option value="water" {% if selected_service == 'water' %}selected{% endif %}>Nước</option>
+                    <option value="internet" {% if selected_service == 'internet' %}selected{% endif %}>Internet</option>
+                    <option value="maintenance" {% if selected_service == 'maintenance' %}selected{% endif %}>Bảo trì</option>
+                    <option value="other" {% if selected_service == 'other' %}selected{% endif %}>Khác</option>
+                </select>
+                
             <select id="filter-building" class="filter-select select-building">
-                <option value="">Tất cả tòa nhà</option>
-                {% for building in buildings %}
-                    <option value="{{ building.id }}" {% if selected_building|stringformat:"s" == building.id|stringformat:"s" %}selected{% endif %}>
-                        {{ building.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            
+                    <option value="">Tất cả tòa nhà</option>
+                    {% for building in buildings %}
+                        <option value="{{ building.id }}" {% if selected_building|stringformat:"s" == building.id|stringformat:"s" %}selected{% endif %}>
+                            {{ building.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
             <input type="date" id="date-from" class="filter-select" value="{{ request.GET.date_from }}" placeholder="Từ ngày">
-            <span class="filter-arrow">→</span>
+                <span class="filter-arrow">→</span>
             <input type="date" id="date-to" class="filter-select" value="{{ request.GET.date_to }}" placeholder="Đến ngày">
-            
+                
             <input type="text" id="search-input" class="search-input" 
-                   value="{{ search_query }}"
-                   placeholder="🔍 Tìm mã HĐ, phòng, cư dân..." 
+                       value="{{ search_query }}"
+                       placeholder="🔍 Tìm mã HĐ, phòng, cư dân..." 
                    onkeypress="if(event.key==='Enter') applyFilters()">
-            
+                
             <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
-                <i class="fa-solid fa-filter"></i> Lọc
-            </button>
-            
-            {% if search_query or selected_status or selected_service or selected_building or request.GET.date_from or request.GET.date_to %}
+                    <i class="fa-solid fa-filter"></i> Lọc
+                </button>
+                
+                {% if search_query or selected_status or selected_service or selected_building or request.GET.date_from or request.GET.date_to %}
             <button class="btn-secondary" onclick="clearFilters()" style="padding: 10px 16px;" title="Xóa bộ lọc">
                 <i class="fa-solid fa-times"></i>
             </button>
-            {% endif %}
+                {% endif %}
         </div>
         
         <div class="actions">
