@@ -1,0 +1,63 @@
+/* ============================================
+   OPERATION.CSS - Operation Expense Page Styles
+   ============================================ */
+
+.category-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+.category-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.category-card {
+    padding: 18px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border-left: 4px solid;
+    transition: all 0.2s ease;
+}
+
+.category-card:hover {
+    background: #f1f5f9;
+    transform: translateX(4px);
+}
+
+.category-card.red { border-left-color: #ef4444; }
+.category-card.blue { border-left-color: #3b82f6; }
+.category-card.green { border-left-color: #10b981; }
+.category-card.orange { border-left-color: #f59e0b; }
+.category-card.purple { border-left-color: #8b5cf6; }
+.category-card.pink { border-left-color: #ec4899; }
+
+.category-name {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.category-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+

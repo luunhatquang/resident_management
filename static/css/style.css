@@ -71,6 +71,21 @@ body {
     color: var(--primary-color);
 }
 
+/* Logout button - đưa xuống dưới và tô màu đỏ */
+.menu-item.logout {
+    margin-top: auto;
+    margin-bottom: 0;
+    color: #ef4444;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-top: auto;
+}
+
+.menu-item.logout:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
 /* Main Content */
 .main-content {
     flex: 1;
@@ -93,6 +108,13 @@ header {
 .header-title {
     font-size: 20px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-title i {
+    color: var(--primary-color);
 }
 
 .user-profile {
@@ -101,26 +123,114 @@ header {
     gap: 15px;
 }
 
+/* Notification Bell */
 .notification-bell {
     position: relative;
     cursor: pointer;
     padding: 8px;
 }
 
-.notification-bell .badge {
+.notification-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    text-decoration: none;
+    position: relative;
+}
+
+.notification-bell i {
+    font-size: 20px;
+    color: var(--text-light);
+    transition: color 0.2s;
+}
+
+.notification-bell:hover i {
+    color: var(--primary-color);
+}
+
+.notification-link .notification-badge {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: -4px;
+    right: -4px;
     background-color: var(--status-occupied);
     color: white;
     font-size: 10px;
-    width: 18px;
+    min-width: 18px;
     height: 18px;
+    padding: 0 4px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
+    line-height: 1;
+    z-index: 1;
+}
+
+/* User Info Link */
+.user-info-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    transition: opacity 0.2s;
+}
+
+.user-info-link:hover {
+    opacity: 0.8;
+}
+
+.user-info {
+    text-align: right;
+}
+
+.user-name {
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.user-edit-icon {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.user-role {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Avatar */
+.user-profile .avatar {
+    width: 40px;
+    height: 40px;
+    background: #e2e8f0;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.user-profile .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.user-profile .avatar.avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-profile .avatar.avatar-placeholder i {
+    color: #94a3b8;
+    font-size: 18px;
 }
 
 /* Dashboard Content Area */
@@ -157,6 +267,37 @@ header {
     font-size: 28px;
     font-weight: bold;
     color: var(--text-main);
+}
+
+/* Building Filter Select */
+.building-filter-select {
+    flex: 1;
+    max-width: 400px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    background-color: white;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+.building-filter-select:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.building-filter-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 /* Building Map Section (Task 5) */
@@ -228,6 +369,8 @@ header {
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    padding: 8px;
+    overflow: visible;
 }
 
 .apartment-box:hover {
@@ -238,11 +381,21 @@ header {
 .apt-number {
     font-weight: bold;
     font-size: 16px;
+    z-index: 1;
+    position: relative;
+    text-align: center;
+    word-break: break-word;
+    width: 100%;
 }
 
 .apt-status-text {
     font-size: 11px;
     margin-top: 4px;
+    z-index: 1;
+    position: relative;
+    text-align: center;
+    word-break: break-word;
+    width: 100%;
 }
 
 /* Status Styling */
@@ -264,22 +417,29 @@ header {
     background-color: #fefce8;
 }
 
-/* Expiration Warning Icon */
-.warning-icon {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #f97316; /* Orange */
-    color: white;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    animation: pulse 2s infinite;
+/* Expiration Warning Icon - chỉ áp dụng cho apartment box */
+.apartment-box .warning-icon {
+    position: absolute !important;
+    top: 2px !important;
+    right: 2px !important;
+    background: #ef4444 !important;
+    color: white !important;
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 8px !important;
+    font-weight: bold !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+    z-index: 10 !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    pointer-events: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    animation: none !important;
 }
 
 @keyframes pulse {

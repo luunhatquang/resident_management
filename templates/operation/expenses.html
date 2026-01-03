@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chi phí vận hành{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/operation.css' %}">
+{% endblock %}
+
+{% block header_icon %}<i class="fa-solid fa-wallet"></i>{% endblock %}
+{% block header_title %}Chi phí vận hành{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Stats Summary -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Tổng chi phí</div>
+                    <div class="stat-value">{{ total_expenses|floatformat:0 }}</div>
+                    <div class="stat-subtitle">VNĐ</div>
+                </div>
+                <div class="stat-icon blue">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card green">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Đã thanh toán</div>
+                    <div class="stat-value">{{ total_paid|floatformat:0 }}</div>
+                    <div class="stat-subtitle">{{ count_paid }} khoản</div>
+                </div>
+                <div class="stat-icon green">
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card orange">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Tháng này</div>
+                    <div class="stat-value">{{ total_paid_this_month|floatformat:0 }}</div>
+                    <div class="stat-subtitle">VNĐ</div>
+                </div>
+                <div class="stat-icon orange">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card purple">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Tháng trước</div>
+                    <div class="stat-value">{{ total_paid_pre_month|floatformat:0 }}</div>
+                    <div class="stat-subtitle">VNĐ</div>
+                </div>
+                <div class="stat-icon purple">
+                    <i class="fa-solid fa-history"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="category-section">
+        <div class="category-header">
+            <i class="fa-solid fa-chart-pie"></i>
+            Chi tiết theo loại chi phí
+        </div>
+        <div class="category-grid">
+            <div class="category-card red">
+                <div class="category-name"><i class="fa-solid fa-wrench"></i> Bảo trì</div>
+                <div class="category-value">{{ total_maintaince|floatformat:0 }} VNĐ</div>
+            </div>
+            <div class="category-card blue">
+                <div class="category-name"><i class="fa-solid fa-lightbulb"></i> Tiện ích</div>
+                <div class="category-value">{{ total_utilities|floatformat:0 }} VNĐ</div>
+            </div>
+            <div class="category-card green">
+                <div class="category-name"><i class="fa-solid fa-coins"></i> Lương</div>
+                <div class="category-value">{{ total_salaries|floatformat:0 }} VNĐ</div>
+            </div>
+            <div class="category-card orange">
+                <div class="category-name"><i class="fa-solid fa-shield-halved"></i> An ninh</div>
+                <div class="category-value">{{ total_security|floatformat:0 }} VNĐ</div>
+            </div>
+            <div class="category-card purple">
+                <div class="category-name"><i class="fa-solid fa-broom"></i> Vệ sinh</div>
+                <div class="category-value">{{ total_cleaning|floatformat:0 }} VNĐ</div>
+            </div>
+            <div class="category-card pink">
+                <div class="category-name"><i class="fa-solid fa-box"></i> Vật tư</div>
+                <div class="category-value">{{ total_supplies|floatformat:0 }} VNĐ</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters & Actions -->
+    <div class="section-header">
+        <div class="filters">
+            <form method="GET" class="form-inline">
+                <input type="date" name="date_from" class="filter-select" value="{{ request.GET.date_from }}" placeholder="Từ ngày">
+                <span class="filter-arrow">→</span>
+                <input type="date" name="date_to" class="filter-select" value="{{ request.GET.date_to }}" placeholder="Đến ngày">
+                <select name="building" class="filter-select select-building">
+                    <option value="">Tất cả tòa nhà</option>
+                    {% for building in buildings %}
+                        <option value="{{ building.id }}" {% if selected_building|stringformat:"s" == building.id|stringformat:"s" %}selected{% endif %}>
+                            {{ building.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <select name="recorded_by" class="filter-select select-user">
+                    <option value="">Tất cả người thêm</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" {% if selected_user|stringformat:"s" == user.id|stringformat:"s" %}selected{% endif %}>
+                            {{ user.get_full_name|default:user.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-secondary">
+                    <i class="fa-solid fa-filter"></i> Lọc
+                </button>
+                <a href="{% url 'get_all_expenses' %}" class="btn-secondary">
+                    <i class="fa-solid fa-rotate"></i> Reset
+                </a>
+            </form>
+        </div>
+        <div class="actions">
+            <a href="{% url 'add_expense' %}" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Thêm chi phí
+            </a>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Mã CP</th>
+                    <th>Nội dung</th>
+                    <th>Loại</th>
+                    <th>Tòa nhà</th>
+                    <th>Ngày chi</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Tổng tiền</th>
+                    <th>Người ghi nhận</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if expenses %}
+                    {% for expense in expenses %}
+                    <tr>
+                        <td><strong class="id-highlight">{{ expense.expense_id }}</strong></td>
+                        <td>{{ expense.expense_title }}</td>
+                        <td><span class="badge badge-info">{{ expense.get_category_type_display }}</span></td>
+                        <td>{{ expense.building.name }}</td>
+                        <td>{{ expense.date|date:"d/m/Y" }}</td>
+                        <td class="table-cell-center">{{ expense.count }}</td>
+                        <td class="table-cell-right">{{ expense.amount|floatformat:0 }} VNĐ</td>
+                        <td class="table-cell-right"><strong>{{ expense.total_amount|floatformat:0 }} VNĐ</strong></td>
+                        <td>
+                            {% if expense.recorded_by %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-user text-muted text-xs"></i>
+                                    <span>{{ expense.recorded_by.get_full_name|default:expense.recorded_by.username }}</span>
+                                </div>
+                            {% else %}
+                                <span class="text-empty">--</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if expense.status == 'paid' %}
+                                <span class="status-badge status-active"><i class="fa-solid fa-circle-check"></i> Đã thanh toán</span>
+                            {% elif expense.status == 'unpaid' %}
+                                <span class="status-badge status-pending"><i class="fa-solid fa-clock"></i> Chưa thanh toán</span>
+                            {% else %}
+                                <span class="status-badge status-expired"><i class="fa-solid fa-exclamation-circle"></i> Quá hạn</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'view_expense' pk=expense.pk %}" class="btn-icon" title="Xem chi tiết">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <a href="{% url 'edit_expense' pk=expense.pk %}" class="btn-icon" title="Chỉnh sửa">
+                                    <i class="fa-solid fa-edit"></i>
+                                </a>
+                                <a href="{% url 'delete_expense' pk=expense.pk %}" class="btn-icon btn-danger" title="Xóa">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="11">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-inbox"></i>
+                                <p>Chưa có dữ liệu chi phí vận hành</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

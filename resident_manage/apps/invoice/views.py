@@ -1,63 +1,91 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from .models import Invoice
-from resident_manage.apps.contract.models import Contract
+from django.db.models import Q, Sum, Count
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from .models import Invoice
+from resident_manage.apps.contract.models import Contract
+from resident_manage.apps.building.models import Building
 from .form import InvoiceForm, InvoiceUpdateForm
 
 
 @login_required(login_url='login')
 def getAllInvoices(request):
-    invoice = Invoice.objects.all()
+    invoices = Invoice.objects.select_related('room', 'resident', 'contract', 'room__building').all()
+    status_filter = request.GET.get('status', '')
+    service_filter = request.GET.get('service', '')
+    building_filter = request.GET.get('building', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    search_query = request.GET.get('search', '')
+    
+    if status_filter:
+        invoices = invoices.filter(status=status_filter)
+    if service_filter:
+        invoices = invoices.filter(service=service_filter)
+    if building_filter:
+        invoices = invoices.filter(room__building_id=building_filter)
+    if date_from:
+        invoices = invoices.filter(start_date__gte=date_from)
+    if date_to:
+        invoices = invoices.filter(start_date__lte=date_to)
+    if search_query:
+        invoices = invoices.filter(
+            Q(invoice_id__icontains=search_query) |
+            Q(invoice_title__icontains=search_query) |
+            Q(room__room_number__icontains=search_query) |
+            Q(room__room_id__icontains=search_query) |
+            Q(resident__first_name__icontains=search_query) |
+            Q(resident__last_name__icontains=search_query)
+        )
+    
+    invoices = invoices.order_by('-start_date', '-created_at')
+    
     today = timezone.now()
+    first_day_this_month = today.replace(day=1)
+    last_day_prev_month = first_day_this_month - timezone.timedelta(days=1)
     
-    # Tổng doanh thu (tất cả đã thanh toán)
-    revenue = 0
-    for i in invoice:
-        if i.status == 'paid':
-            revenue += i.total_price
+    revenue = invoices.filter(status='paid').aggregate(
+        total=Sum('total_price')
+    )['total'] or 0
     
-    # Doanh thu tháng này (dựa vào start_date - kỳ thu phí)
-    revenue_this_month = 0
-    for i in invoice:
-        if i.status == 'paid' and i.start_date.month == today.month and i.start_date.year == today.year:
-            revenue_this_month += i.total_price
+    revenue_this_month = invoices.filter(
+        status='paid',
+        start_date__year=today.year,
+        start_date__month=today.month
+    ).aggregate(total=Sum('total_price'))['total'] or 0
     
-    # Doanh thu tháng trước
-    revenue_pre_month = 0
-    prev_month = today.month - 1 if today.month > 1 else 12
-    prev_month_year = today.year if today.month > 1 else today.year - 1
-    for i in invoice:
-        if i.status == 'paid' and i.start_date.month == prev_month and i.start_date.year == prev_month_year:
-            revenue_pre_month += i.total_price
+    revenue_pre_month = invoices.filter(
+        status='paid',
+        start_date__year=last_day_prev_month.year,
+        start_date__month=last_day_prev_month.month
+    ).aggregate(total=Sum('total_price'))['total'] or 0
     
-    # So sánh với tháng trước
-    compare_revenue = (revenue_this_month - revenue_pre_month)/revenue_pre_month * 100 if revenue_pre_month != 0 else 0
+    compare_revenue = (revenue_this_month - revenue_pre_month) / revenue_pre_month * 100 if revenue_pre_month != 0 else 0
     
-    # Doanh thu năm nay
-    revenue_this_year = 0
-    for i in invoice:
-        if i.status == 'paid' and i.start_date.year == today.year:
-            revenue_this_year += i.total_price
+    revenue_this_year = invoices.filter(
+        status='paid',
+        start_date__year=today.year
+    ).aggregate(total=Sum('total_price'))['total'] or 0
     
-    # Doanh thu năm trước (cùng tháng)
-    revenue_pre_year = 0
-    for i in invoice:
-        if i.status == 'paid' and i.start_date.year == (today.year - 1) and i.start_date.month == today.month:
-            revenue_pre_year += i.total_price
+    revenue_pre_year = invoices.filter(
+        status='paid',
+        start_date__year=today.year - 1,
+        start_date__month=today.month
+    ).aggregate(total=Sum('total_price'))['total'] or 0
     
-    # So sánh với năm trước
-    compare_revenue_year = (revenue_this_year - revenue_pre_year)/revenue_pre_year * 100 if revenue_pre_year != 0 else 0
+    compare_revenue_year = (revenue_this_year - revenue_pre_year) / revenue_pre_year * 100 if revenue_pre_year != 0 else 0
     
-    # Thống kê số lượng hóa đơn
-    invoice_paid = invoice.filter(status='paid').count()
-    invoice_unpaid = invoice.filter(status='unpaid').count()
-    invoice_overdue = invoice.filter(status='overdue').count()
-    invoice_total = invoice.count()
+    invoice_paid = invoices.filter(status='paid').count()
+    invoice_unpaid = invoices.filter(status='unpaid').count()
+    invoice_overdue = invoices.filter(status='overdue').count()
+    invoice_total = invoices.count()
+    
+    buildings = Building.objects.all().order_by('name')
+    
     context = {
-        "invoices": invoice,
+        "invoices": invoices,
         "revenue": revenue,
         "revenue_this_month": revenue_this_month,
         "revenue_pre_month": revenue_pre_month,
@@ -69,6 +97,11 @@ def getAllInvoices(request):
         "invoice_unpaid": invoice_unpaid,
         "invoice_overdue": invoice_overdue,
         "invoice_total": invoice_total,
+        "buildings": buildings,
+        "selected_status": status_filter,
+        "selected_service": service_filter,
+        "selected_building": building_filter,
+        "search_query": search_query,
     }
     return render(request, 'invoices.html', context)
 

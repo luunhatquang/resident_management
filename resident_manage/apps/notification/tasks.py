@@ -19,7 +19,6 @@ def check_expiring_contracts():
 
     count = 0
     for contract in expiring_contracts:
-        # Kiểm tra trùng lặp trong ngày
         exists = Notification.objects.filter(
             contract=contract,
             notification_type='contract_expiring',

@@ -1,239 +1,322 @@
 {% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Hợp đồng - RMS System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
+</head>
+<body>
 
 {% block title %}Quản lý Hợp đồng{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/contracts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
 {% endblock %}
 
-{% block header_icon %}<i class="fa-solid fa-file-signature"></i>{% endblock %}
-{% block header_title %}Quản lý Hợp đồng{% endblock %}
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <i class="fa-solid fa-file-contract"></i> Quản lý Hợp đồng
+            </div>
+            <div class="user-profile">
+                <div class="notification-bell">
+                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
+                    <div class="badge">3</div>
+                </div>
+                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; font-size: 14px;">
+                            {{ user.get_full_name|default:user.username }}
+                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
+                    </div>
+                    {% if user.profile and user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
+                    {% else %}
+                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
+                        </div>
+                    {% endif %}
+                </a>
+            </div>
+        </header>
 
 {% block content %}
-<!-- Stats Cards -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-title">Tổng hợp đồng</div>
-        <div class="stat-value">{{ total }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-title">Đang hiệu lực</div>
-        <div class="stat-value" style="color: var(--status-empty);">{{ is_active }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-title">Sắp hết hạn</div>
-        <div class="stat-value" style="color: var(--status-maintenance);">{{ will_expire }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-title">Đã hết hạn</div>
-        <div class="stat-value" style="color: var(--status-occupied);">{{ is_expired }}</div>
-    </div>
-</div>
-
-<!-- Filters & Actions -->
-<div class="section-header">
-    <div class="filters">
-        <select id="filter-type" class="filter-select" onchange="applyFilters()">
-            <option value="">Tất cả loại</option>
-            <option value="rent" {% if filter_type == 'rent' %}selected{% endif %}>Hợp đồng thuê</option>
-            <option value="sale" {% if filter_type == 'sale' %}selected{% endif %}>Hợp đồng mua bán</option>
-        </select>
-        
-        <select id="filter-status" class="filter-select" onchange="applyFilters()">
-            <option value="">Tất cả trạng thái</option>
-            <option value="pending" {% if filter_status == 'pending' %}selected{% endif %}>Chờ duyệt</option>
-            <option value="active" {% if filter_status == 'active' %}selected{% endif %}>Đang hiệu lực</option>
-            <option value="expired" {% if filter_status == 'expired' %}selected{% endif %}>Đã hết hạn</option>
-            <option value="terminated" {% if filter_status == 'terminated' %}selected{% endif %}>Đã chấm dứt</option>
-        </select>
-        
-        <input type="text" id="search-input" class="search-input" 
-               placeholder="🔍 Tìm mã hợp đồng, cư dân, phòng..." 
-               value="{{ search_keyword }}"
-               onkeypress="if(event.key==='Enter') applyFilters()">
-        
-        <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
-            <i class="fa-solid fa-search"></i>
-        </button>
-        
-        {% if search_keyword or filter_type or filter_status %}
-        <button class="btn-secondary" onclick="clearFilters()" style="padding: 10px 16px;" title="Xóa bộ lọc">
-            <i class="fa-solid fa-times"></i>
-        </button>
-        {% endif %}
-    </div>
-    
-    <button class="btn-primary" onclick="openAddModal()">
-        <i class="fa-solid fa-plus"></i> Thêm hợp đồng
-    </button>
-</div>
-
-<!-- Contracts Table -->
-<div class="table-container">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Mã HĐ</th>
-                <th>Loại</th>
-                <th>Cư dân</th>
-                <th>Phòng</th>
-                <th>Ngày bắt đầu</th>
-                <th>Ngày kết thúc</th>
-                <th>Giá trị</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody id="contracts-tbody">
-            {% if contracts %}
-                {% for contract in contracts %}
-                <tr>
-                    <td><strong>{{ contract.contract_id }}</strong></td>
-                    <td>
-                        {% if contract.contract_type == 'rent' %}
-                            <span class="badge badge-info">{{ contract.get_contract_type_display }}</span>
-                        {% elif contract.contract_type == 'sale' %}
-                            <span class="badge badge-success">{{ contract.get_contract_type_display }}</span>
-                        {% else %}
-                            <span class="badge" style="background: #e2e8f0; color: #475569;">{{ contract.get_contract_type_display|default:"Chưa xác định" }}</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ contract.resident.last_name }} {{ contract.resident.first_name }}</td>
-                    <td>
-                        <div>{{ contract.room.building.name }}</div>
-                        <div style="font-size: 0.85em; color: #64748b;">{{ contract.room.room_number }}</div>
-                    </td>
-                    <td>{{ contract.start_date|date:"d/m/Y" }}</td>
-                    <td>
-                        {% if contract.end_date %}
-                            {{ contract.end_date|date:"d/m/Y" }}
-                        {% else %}
-                            <span style="color: #999;">--</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if contract.contract_type == 'rent' %}
-                            {{ contract.price_per_month|floatformat:0|default:"--" }} VNĐ/tháng
-                        {% else %}
-                            {{ contract.total_price|floatformat:0|default:"--" }} VNĐ
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if contract.status == 'active' %}
-                            <span class="status-badge status-active">Đang hiệu lực</span>
-                        {% elif contract.status == 'pending' %}
-                            <span class="status-badge status-pending">Chờ duyệt</span>
-                        {% elif contract.status == 'expired' %}
-                            <span class="status-badge status-expired">Đã hết hạn</span>
-                        {% elif contract.status == 'terminated' %}
-                            <span class="status-badge status-terminated">Đã chấm dứt</span>
-                        {% elif contract.status == 'will_expire' %}
-                            <span class="status-badge status-will-expire">Sắp hết hạn</span>
-                        {% elif contract.status == 'rejected' %}
-                            <span class="status-badge status-rejected">Từ chối</span>
-                        {% else %}
-                            <span class="status-badge">{{ contract.get_status_display }}</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-icon" onclick="viewContract({{ contract.id }})" title="Xem chi tiết">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                            <button class="btn-icon" onclick="editContract({{ contract.id }})" title="Chỉnh sửa">
-                                <i class="fa-solid fa-edit"></i>
-                            </button>
-                            <button class="btn-icon btn-danger" onclick="deleteContract({{ contract.id }})" title="Xóa">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            {% else %}
-                <tr>
-                    <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
-                        <i class="fa-solid fa-inbox"></i><br>
-                        {% if search_keyword %}
-                            Không tìm thấy hợp đồng với từ khóa "{{ search_keyword }}"
-                        {% else %}
-                            Chưa có hợp đồng nào
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endif %}
-        </tbody>
-    </table>
-</div>
-
-<!-- Modal: Contract Detail -->
-<div id="contract-modal" class="modal">
-    <div class="modal-content modal-large">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <div class="modal-header">
-            <h2 id="modal-title">Chi tiết hợp đồng</h2>
-        </div>
-        
-        <div class="modal-body">
-            <div class="info-grid">
-                <div class="info-item">
-                    <label>Mã hợp đồng:</label>
-                    <span id="detail-contract-id">--</span>
+<div class="page-container">
+    <!-- Contract Stats -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Tổng hợp đồng</div>
+                    <div class="stat-value">{{ total }}</div>
                 </div>
-                <div class="info-item">
-                    <label>Loại hợp đồng:</label>
-                    <span id="detail-type">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Cư dân:</label>
-                    <span id="detail-resident">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Căn hộ:</label>
-                    <span id="detail-room">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Ngày ký:</label>
-                    <span id="detail-sign-date">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Ngày bắt đầu:</label>
-                    <span id="detail-start-date">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Ngày kết thúc:</label>
-                    <span id="detail-end-date">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Trạng thái:</label>
-                    <span id="detail-status" class="status-badge">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Giá thuê/tháng:</label>
-                    <span id="detail-monthly-rent">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Tiền cọc:</label>
-                    <span id="detail-deposit">--</span>
-                </div>
-                <div class="info-item">
-                    <label>Tổng giá trị:</label>
-                    <span id="detail-total-price" style="font-weight: bold; color: var(--primary-color);">--</span>
+                <div class="stat-icon blue">
+                    <i class="fa-solid fa-file-signature"></i>
                 </div>
             </div>
         </div>
-
-        <div class="modal-footer">
-            <button class="btn-secondary" onclick="closeModal()">Đóng</button>
-            <button class="btn-primary" onclick="editContract()">
-                <i class="fa-solid fa-edit"></i> Chỉnh sửa
-            </button>
+        
+        <div class="stat-card green">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Đang hiệu lực</div>
+                    <div class="stat-value">{{ is_active }}</div>
+                </div>
+                <div class="stat-icon green">
+                    <i class="fa-solid fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card orange">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Sắp hết hạn</div>
+                    <div class="stat-value">{{ will_expire }}</div>
+                </div>
+                <div class="stat-icon orange">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card red">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Đã hết hạn</div>
+                    <div class="stat-value">{{ is_expired }}</div>
+                </div>
+                <div class="stat-icon red">
+                    <i class="fa-solid fa-exclamation-triangle"></i>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Filters & Actions -->
+    <div class="section-header">
+        <div class="filters">
+            <select id="filter-type" class="filter-select">
+                <option value="">Tất cả loại</option>
+                <option value="rent" {% if filter_type == 'rent' %}selected{% endif %}>Hợp đồng thuê</option>
+                <option value="sale" {% if filter_type == 'sale' %}selected{% endif %}>Hợp đồng mua bán</option>
+            </select>
+            
+            <select id="filter-status" class="filter-select">
+                <option value="">Tất cả trạng thái</option>
+                <option value="pending" {% if filter_status == 'pending' %}selected{% endif %}>Chờ duyệt</option>
+                <option value="active" {% if filter_status == 'active' %}selected{% endif %}>Đang hiệu lực</option>
+                <option value="will_expire" {% if filter_status == 'will_expire' %}selected{% endif %}>Sắp hết hạn</option>
+                <option value="expired" {% if filter_status == 'expired' %}selected{% endif %}>Đã hết hạn</option>
+                <option value="terminated" {% if filter_status == 'terminated' %}selected{% endif %}>Đã chấm dứt</option>
+                <option value="rejected" {% if filter_status == 'rejected' %}selected{% endif %}>Từ chối</option>
+            </select>
+            
+            <input type="text" id="search-input" class="search-input" 
+                   placeholder="🔍 Tìm mã hợp đồng, cư dân, phòng..." 
+                   value="{{ search_keyword }}"
+                   onkeypress="if(event.key==='Enter') applyFilters()">
+            
+            <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
+                <i class="fa-solid fa-filter"></i> Lọc
+            </button>
+            
+            {% if search_keyword or filter_type or filter_status %}
+            <button class="btn-secondary" onclick="clearFilters()" style="padding: 10px 16px;" title="Xóa bộ lọc">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            {% endif %}
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'contract_add' %}" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Thêm hợp đồng
+            </a>
+        </div>
+    </div>
+
+    <!-- Contracts Table -->
+    <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Mã HĐ</th>
+                            <th>Loại</th>
+                            <th>Cư dân</th>
+                            <th>Phòng</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Ngày kết thúc</th>
+                            <th>Giá trị</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contracts-tbody">
+                        {% if contracts %}
+                            {% for contract in contracts %}
+                            <tr>
+                                <td><strong>{{ contract.contract_id }}</strong></td>
+                                <td>
+                                    {% if contract.contract_type == 'rent' %}
+                                        <span class="badge badge-info">{{ contract.get_contract_type_display }}</span>
+                                    {% elif contract.contract_type == 'sale' %}
+                                        <span class="badge badge-success">{{ contract.get_contract_type_display }}</span>
+                                    {% else %}
+                                        <span class="badge" style="background: #e2e8f0; color: #475569;">{{ contract.get_contract_type_display|default:"Chưa xác định" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ contract.resident.last_name }} {{ contract.resident.first_name }}</td>
+                                <td>
+                                    <div>{{ contract.room.building.name }}</div>
+                                    <div style="font-size: 0.85em; color: #64748b;">{{ contract.room.room_number }}</div>
+                                </td>
+                                <td>{{ contract.start_date|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if contract.end_date %}
+                                        {{ contract.end_date|date:"d/m/Y" }}
+                                    {% else %}
+                                        <span style="color: #999;">--</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contract.contract_type == 'rent' %}
+                                        {{ contract.price_per_month|floatformat:0|default:"--" }} VNĐ/tháng
+                                    {% else %}
+                                        {{ contract.total_price|floatformat:0|default:"--" }} VNĐ
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if contract.status == 'active' %}
+                                        <span class="status-badge status-active">Đang hiệu lực</span>
+                                    {% elif contract.status == 'pending' %}
+                                        <span class="status-badge status-pending">Chờ duyệt</span>
+                                    {% elif contract.status == 'expired' %}
+                                        <span class="status-badge status-expired">Đã hết hạn</span>
+                                    {% elif contract.status == 'terminated' %}
+                                        <span class="status-badge status-terminated">Đã chấm dứt</span>
+                                    {% elif contract.status == 'will_expire' %}
+                                        <span class="status-badge status-will-expire">Sắp hết hạn</span>
+                                    {% elif contract.status == 'rejected' %}
+                                        <span class="status-badge status-rejected">Từ chối</span>
+                                    {% else %}
+                                        <span class="status-badge">{{ contract.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'contract_detail' pk=contract.id %}" class="btn-icon" title="Xem chi tiết">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'contract_edit' pk=contract.id %}" class="btn-icon" title="Chỉnh sửa">
+                                            <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                        <form method="POST" action="{% url 'contract_delete' pk=contract.id %}" class="form-inline-form" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-icon btn-danger" title="Xóa" onclick="return confirm('Bạn có chắc muốn xóa hợp đồng này?');">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9">
+                                    <div class="empty-state">
+                                        <i class="fa-solid fa-inbox"></i>
+                                        <p>
+                                            {% if search_keyword or filter_type or filter_status %}
+                                                Không tìm thấy hợp đồng phù hợp
+                                            {% else %}
+                                                Chưa có hợp đồng nào
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+    </div>
 </div>
+
+    <!-- Modal: Contract Detail -->
+    <div id="contract-modal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2 id="modal-title">Chi tiết hợp đồng</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Mã hợp đồng:</label>
+                        <span id="detail-contract-id">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Loại hợp đồng:</label>
+                        <span id="detail-type">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Cư dân:</label>
+                        <span id="detail-resident">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Căn hộ:</label>
+                        <span id="detail-room">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày ký:</label>
+                        <span id="detail-sign-date">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày bắt đầu:</label>
+                        <span id="detail-start-date">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Ngày kết thúc:</label>
+                        <span id="detail-end-date">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Trạng thái:</label>
+                        <span id="detail-status" class="status-badge">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Giá thuê/tháng:</label>
+                        <span id="detail-monthly-rent">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Tiền cọc:</label>
+                        <span id="detail-deposit">--</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Tổng giá trị:</label>
+                        <span id="detail-total-price" style="font-weight: bold; color: var(--primary-color);">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">Đóng</button>
+                <button class="btn-primary" onclick="editContract()">
+                    <i class="fa-solid fa-edit"></i> Chỉnh sửa
+                </button>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/contracts.js' %}"></script>
+    <script src="{% static 'js/contracts.js' %}"></script>
 {% endblock %}

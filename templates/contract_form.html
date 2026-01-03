@@ -5,69 +5,19 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
-    <style>
-        .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .form-group.full-width {
-            grid-column: span 2;
-        }
-        .form-group label {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 14px;
-        }
-        .form-control {
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .errorlist {
-            color: #dc2626;
-            font-size: 12px;
-            list-style: none;
-            padding: 0;
-            margin: 4px 0 0 0;
-        }
-        .form-actions {
-            margin-top: 30px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-    </style>
 {% endblock %}
 
 {% block header_icon %}
-<a href="{% url 'contracts' %}" style="text-decoration: none; color: inherit; margin-right: 10px;">
+<a href="{% url 'contracts' %}" class="link-back">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
-<i class="fa-solid fa-file-{{ 'pen' if 'Chỉnh sửa' in action else 'plus' }}"></i>
+{% if 'Chỉnh sửa' in action %}
+    <i class="fa-solid fa-file-pen"></i>
+                    {% else %}
+    <i class="fa-solid fa-file-plus"></i>
+                    {% endif %}
 {% endblock %}
+
 {% block header_title %}{{ action }} Hợp đồng{% endblock %}
 
 {% block content %}
@@ -94,10 +44,13 @@
                     </div>
 
                     <div class="form-actions">
-            <a href="{% url 'contracts' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Hủy</a>
+            <a href="{% url 'contracts' %}" class="btn-secondary">Hủy</a>
                         <button type="submit" class="btn-primary">
-                <i class="fa-solid fa-{% if 'Chỉnh sửa' in action %}save{% else %}check{% endif %}"></i> 
-                {% if 'Chỉnh sửa' in action %}Lưu thay đổi{% else %}Tạo hợp đồng{% endif %}
+                {% if 'Chỉnh sửa' in action %}
+                    <i class="fa-solid fa-save"></i> Lưu thay đổi
+                {% else %}
+                    <i class="fa-solid fa-check"></i> Tạo hợp đồng
+                {% endif %}
                         </button>
                     </div>
                 </form>
