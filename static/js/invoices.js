@@ -1,14 +1,20 @@
 /* ==================== INVOICES SCRIPTS ==================== */
 
-// Apply filters
+// Apply filters - Redirect với query params
 function applyFilters() {
     const status = document.getElementById('filter-status').value;
     const service = document.getElementById('filter-service').value;
-    const search = document.getElementById('search-input').value;
+    const building = document.getElementById('filter-building').value;
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo = document.getElementById('date-to').value;
+    const search = document.getElementById('search-input').value.trim();
     
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     if (service) params.append('service', service);
+    if (building) params.append('building', building);
+    if (dateFrom) params.append('date_from', dateFrom);
+    if (dateTo) params.append('date_to', dateTo);
     if (search) params.append('search', search);
     
     window.location.href = `/invoices/?${params.toString()}`;

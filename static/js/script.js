@@ -27,15 +27,24 @@ function openRoomDetail(roomId) {
         .then(data => {
             // Cập nhật thông tin cơ bản
             document.getElementById('modal-apt-number').innerText = `Căn hộ ${data.room_number}`;
+            document.getElementById('modal-building-name').innerText = data.building_name || '--';
+            document.getElementById('modal-floor-number').innerText = data.floor_number || '--';
             document.getElementById('modal-apt-status').innerText = data.status;
             document.getElementById('modal-apt-area').innerText = `${data.area} m²`;
 
-            // Cập nhật nút Cập nhật hồ sơ/hợp đồng
-            const updateBtn = document.getElementById('btn-update-profile');
-            if (data.contract_id) {
-                updateBtn.href = `/contracts/${data.contract_id}/edit/`;
+            // Cập nhật các nút hành động
+            const viewDetailBtn = document.getElementById('btn-view-detail');
+            const editRoomBtn = document.getElementById('btn-edit-room');
+            
+            if (data.room_id) {
+                viewDetailBtn.href = `/rooms/detail/${data.room_id}/`;
+                editRoomBtn.href = `/rooms/${data.room_id}/update/`;
+                viewDetailBtn.style.display = 'inline-flex';
+                editRoomBtn.style.display = 'inline-flex';
             } else {
-                updateBtn.href = `/accounts/profile/`; // Fallback to personal profile
+                console.error('Room ID not found in API response');
+                viewDetailBtn.style.display = 'none';
+                editRoomBtn.style.display = 'none';
             }
 
             // Cập nhật danh sách cư dân

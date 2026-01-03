@@ -10,9 +10,6 @@ from resident_manage.apps.contract.views import (
     contract_edit_view, contract_detail_view, 
     contract_delete_view
 )
-from resident_manage.apps.resident.views import (residents_view, resident_create_view, resident_detail_view,
-resident_edit_view, resident_delete_view, resident_update_status_view)
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     
@@ -31,13 +28,8 @@ urlpatterns = [
     path("contracts/<int:pk>/edit/", contract_edit_view, name="contract_edit"),
     path("contracts/<int:pk>/delete/", contract_delete_view, name="contract_delete"),
     
-    path("residents/", residents_view, name="residents"),
-    path('residents/add/', resident_create_view, name='resident_create'),
-    path('residents/<int:pk>/', resident_detail_view, name='resident_detail'),
-    path('residents/<int:pk>/edit/', resident_edit_view, name='resident_edit'),
-    path('residents/<int:pk>/update-status/', resident_update_status_view, name='resident_update_status'),
+    path("residents/", include("resident_manage.apps.resident.urls")),
     
-
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     
@@ -45,6 +37,7 @@ urlpatterns = [
     path('', include('resident_manage.apps.building.urls')),
     path('', include('resident_manage.apps.invoice.urls')),
     path('', include('resident_manage.apps.notification.urls')),
+    path('', include('resident_manage.apps.operation.urls')),
 ]
 
 if settings.DEBUG:

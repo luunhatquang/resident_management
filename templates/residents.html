@@ -1,102 +1,60 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Cư dân - RMS System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{% block title %}Quản lý Cư dân - RMS System{% endblock %}
+
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
-</head>
-<body>
-    <!-- Sidebar -->
-    {% include 'components/sidebar.html' %}
+{% endblock %}
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <div class="header-title">
-                <i class="fa-solid fa-users"></i> Quản lý Cư dân
-            </div>
-            <div class="user-profile">
-                <div class="notification-bell">
-                    <i class="fa-regular fa-bell" style="font-size: 20px;"></i>
-                    <div class="badge">3</div>
-                </div>
-                <a href="{% url 'profile' %}" class="user-info-link" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
-                    <div style="text-align: right;">
-                        <div style="font-weight: bold; font-size: 14px;">
-                            {{ user.get_full_name|default:user.username }}
-                            <i class="fa-solid fa-pen-to-square" style="font-size: 10px; margin-left: 4px; color: #94a3b8;"></i>
-                        </div>
-                        <div style="font-size: 12px; color: #64748b;">{% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}</div>
-                    </div>
-                    {% if user.profile and user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; object-fit: cover;">
-                    {% else %}
-                        <div class="avatar" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-user" style="color: #94a3b8;"></i>
-                        </div>
-                    {% endif %}
-                </a>
-            </div>
-        </header>
+{% block header_icon %}<i class="fa-solid fa-users"></i>{% endblock %}
+{% block header_title %}Quản lý Cư dân{% endblock %}
 
-        <!-- Dashboard Body -->
+{% block content %}
         <div class="dashboard-container">
             
             <!-- Stats Cards -->
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-title">Tổng cư dân</div>
-                    <div class="stat-value">{{ living_total }}</div>
+        <div class="stat-card" style="border-top: 4px solid var(--primary-color);">
+            <div class="stat-title">
+                <i class="fa-solid fa-users" style="color: var(--primary-color); margin-right: 5px;"></i> Tổng cư dân
+            </div>
+                    <div class="stat-value">{{ total }}</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-title">Cư dân mới chuyển đến tháng này</div>
-                    <div class="stat-value" style="color: var(--status-empty);">{{ living_new_residents_this_month }}</div>
-                </div>
-                <!-- <div class="stat-card">
-                    <div class="stat-title">Cư dân chuyển đi tháng này</div>
-                    <div class="stat-value" style="color: #ef4444;">{{ residents_moved_out_this_month }}</div>
-                </div> -->
+        <div class="stat-card" style="border-top: 4px solid #10b981;">
+            <div class="stat-title">
+                <i class="fa-solid fa-user-plus" style="color: #10b981; margin-right: 5px;"></i> Cư dân mới chuyển đến tháng này
+            </div>
+            <div class="stat-value" style="color: #10b981;">{{ new_residents_this_month }}</div>
+        </div>
             </div>
 
             <!-- Filters & Actions -->
-            <div class="section-header">
-                <div class="filters">
-
-                    <select id="status-filter" class="search-input" style="width: auto; min-width: 150px;" onchange="applyFilters()">
-                        <option value="">-- Tất cả trạng thái --</option>
-                        {% for value, label in status_choices %}
-                            <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    
+    <div class="section-header" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px;">
+        <div class="filters" style="flex: 1;">
+            <div style="position: relative; display: flex; align-items: center; gap: 15px; width: 100%;">
+                <div style="position: relative; flex: 1; max-width: 500px;">
+                    <i class="fa-solid fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
                     <input type="text" id="search-input" class="search-input" 
-                           placeholder="🔍 Tìm tên, CMND/CCCD, email, số điện thoại..." 
+                           placeholder="Tìm tên, CMND/CCCD, email, số điện thoại..." 
+                           style="padding-left: 40px; width: 100%;"
                            value="{{ search_keyword }}"
                            onkeypress="if(event.key==='Enter') applyFilters()">
+                </div>
                     
-                    <button class="btn-secondary" onclick="applyFilters()" style="padding: 10px 16px;">
-                        <i class="fa-solid fa-search"></i>
-                    </button>
+                <button class="btn-secondary" onclick="applyFilters()" style="height: 42px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-filter"></i> Lọc
+                </button>
                     
-                    {% if search_keyword or status_filter %}
-                    <button class="btn-secondary" onclick="clearFilters()" style="padding: 10px 16px;" title="Xóa bộ lọc">
+                    {% if search_keyword or address_filter or relationship_filter or room_filter or sign_date_from or sign_date_to %}
+                <button class="btn-secondary" onclick="clearFilters()" style="height: 42px; width: 42px; display: flex; align-items: center; justify-content: center; padding: 0;" title="Xóa bộ lọc">
                         <i class="fa-solid fa-times"></i>
                     </button>
                     {% endif %}
+            </div>
                 </div>
                 
-                <!-- <button class="btn-primary" onclick="toggleFilters()" style="margin-left: 10px;">
-                    <i class="fa-solid fa-filter"></i> Bộ lọc nâng cao
-                </button> -->
-                
-                <button class="btn-primary" onclick="openAddModal()">
+        <button class="btn-primary" onclick="openAddModal()" style="height: 42px; padding: 0 24px; font-weight: 600;">
                     <i class="fa-solid fa-plus"></i> Thêm cư dân
                 </button>
             </div>
@@ -132,7 +90,7 @@
                                 </td>
                                 <td>
                                     {% if resident.relationship %}
-                                        <span class="status-badge" style="background: #e0e7ff; color: #4338ca; font-size: 12px;">
+                                <span class="status-badge" style="background: #e0e7ff; color: #4338ca; font-size: 12px; padding: 4px 10px; border-radius: 20px;">
                                             {{ resident.get_relationship_display }}
                                         </span>
                                     {% else %}
@@ -141,7 +99,7 @@
                                 </td>
                                 <td>
                                     {% if resident.room %}
-                                        <strong>{{ resident.room.room_number }}</strong><br>
+                                <strong>{{ resident.room.room_number }}</strong><br>
                                         <span style="font-size: 12px; color: #999;">{{ resident.room.building.name }}</span>
                                     {% else %}
                                         <span style="color: #999;">--</span>
@@ -173,8 +131,8 @@
                             {% endfor %}
                         {% else %}
                             <tr>
-                                <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                                    <i class="fa-solid fa-inbox"></i><br>
+                        <td colspan="10" style="text-align: center; padding: 40px; color: #999;">
+                            <i class="fa-solid fa-inbox" style="font-size: 48px; margin-bottom: 16px;"></i><br>
                                     {% if search_keyword %}
                                         Không tìm thấy cư dân với từ khóa "{{ search_keyword }}"
                                     {% else %}
@@ -187,7 +145,6 @@
                 </table>
             </div>
 
-        </div>
     </div>
 
     <!-- Modal: Resident Detail -->
@@ -255,7 +212,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
+{% block extra_js %}
     <script src="{% static 'js/residents.js' %}"></script>
-</body>
-</html>
+{% endblock %}

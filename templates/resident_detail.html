@@ -1,12 +1,9 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết Cư dân - RMS System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{% block title %}Chi tiết Cư dân - RMS System{% endblock %}
+
+{% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
     <style>
         .detail-container {
@@ -45,33 +42,8 @@
             display: flex;
             justify-content: flex-end;
             gap: 12px;
-        }
-        .btn-primary, .btn-secondary {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #1e40af;
-            transform: translateY(-2px);
-        }
-        .btn-secondary {
-            background: #e2e8f0;
-            color: var(--text-main);
-        }
-        .btn-secondary:hover {
-            background: #cbd5e1;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
         }
         .detail-header {
             display: flex;
@@ -93,27 +65,22 @@
             color: #065f46;
         }
     </style>
-</head>
-<body>
+{% endblock %}
 
-    <!-- Sidebar -->
-    {% include 'components/sidebar.html' %}
+{% block header_icon %}
+<a href="{% url 'residents' %}" style="text-decoration: none; color: inherit; margin-right: 10px;">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
+<i class="fa-solid fa-users"></i>
+{% endblock %}
+{% block header_title %}Chi tiết Cư dân{% endblock %}
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <div class="header-title">
-                <i class="fa-solid fa-users"></i> Chi tiết Cư dân
-            </div>
-        </header>
-
-        <!-- Detail Container -->
+{% block content %}
         <div class="dashboard-container">
             <div class="detail-container">
                 <div class="detail-header">
                     <div>
-                        <h2 style="margin: 0;">{{ resident.last_name }} {{ resident.first_name }}</h2>
+                <h2 style="margin: 0; color: var(--primary-color);">{{ resident.last_name }} {{ resident.first_name }}</h2>
                         <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">CMND/CCCD: {{ resident.citizen_id }}</p>
                     </div>
                     {% if resident.room %}
@@ -124,8 +91,8 @@
                 </div>
 
                 <!-- Thông tin cá nhân -->
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
-                    <i class="fa-solid fa-user-circle"></i> Thông tin Cá nhân
+        <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; color: var(--text-main);">
+            <i class="fa-solid fa-user-circle" style="color: var(--primary-color); margin-right: 8px;"></i> Thông tin Cá nhân
                 </h3>
                 <div class="detail-grid">
                     <div class="detail-item">
@@ -163,8 +130,8 @@
                 </div>
 
                 <!-- Thông tin ở tòa nhà -->
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
-                    <i class="fa-solid fa-building"></i> Thông tin Ở Tòa nhà
+        <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; color: var(--text-main);">
+            <i class="fa-solid fa-building" style="color: var(--primary-color); margin-right: 8px;"></i> Thông tin Ở Tòa nhà
                 </h3>
                 <div class="detail-grid">
                     <div class="detail-item">
@@ -199,8 +166,8 @@
 
                 <!-- Hợp đồng liên quan -->
                 {% if resident.current_contract %}
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
-                    <i class="fa-solid fa-file-contract"></i> Hợp đồng Hiện tại
+        <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; color: var(--text-main);">
+            <i class="fa-solid fa-file-contract" style="color: var(--primary-color); margin-right: 8px;"></i> Hợp đồng Hiện tại
                 </h3>
                 <div class="detail-grid">
                     <div class="detail-item">
@@ -230,16 +197,13 @@
 
                 <!-- Actions -->
                 <div class="detail-actions">
-                    <a href="{% url 'residents' %}" class="btn-secondary">
+            <a href="{% url 'residents' %}" class="btn-secondary" style="text-decoration: none;">
                         <i class="fa-solid fa-arrow-left"></i> Quay lại
                     </a>
-                    <a href="{% url 'resident_edit' resident.id %}" class="btn-primary">
+            <a href="{% url 'resident_edit' resident.id %}" class="btn-primary" style="text-decoration: none;">
                         <i class="fa-solid fa-edit"></i> Chỉnh sửa
                     </a>
                 </div>
             </div>
         </div>
-    </div>
-
-</body>
-</html>
+{% endblock %}

@@ -37,7 +37,7 @@ class Resident(BaseModel):
     
     building = models.ForeignKey(Building, on_delete=models.PROTECT, related_name='residents', verbose_name="Tòa nhà", null=True, blank=True)
     room = models.ForeignKey(Room, on_delete=models.PROTECT, related_name='residents', verbose_name="Căn hộ", null=True, blank=True)
-
+    
     class Meta:
         db_table = "resident"
         verbose_name = "Cư dân"

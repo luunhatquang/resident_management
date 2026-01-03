@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tên Trang{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/[page-name].css' %}">
+{% endblock %}
+
+{% block header_icon %}
+<a href="{% url 'back_url' %}" class="link-back">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
+<i class="fa-solid fa-icon-name"></i>
+{% endblock %}
+
+{% block header_title %}Tiêu đề Trang{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Stats Cards (if needed) -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-header">
+                <div class="stat-content">
+                    <div class="stat-title">Tiêu đề</div>
+                    <div class="stat-value">Giá trị</div>
+                    <div class="stat-subtitle">Mô tả</div>
+                </div>
+                <div class="stat-icon blue">
+                    <i class="fa-solid fa-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters & Actions -->
+    <div class="section-header">
+        <div class="filters">
+            <form method="GET" class="form-inline">
+                <select name="filter" class="filter-select">
+                    <option value="">Tất cả</option>
+                </select>
+                <input type="text" name="search" class="search-input" placeholder="Tìm kiếm...">
+                <button type="submit" class="btn-secondary">
+                    <i class="fa-solid fa-filter"></i> Lọc
+                </button>
+                <a href="{% url 'reset_url' %}" class="btn-secondary">
+                    <i class="fa-solid fa-rotate"></i> Reset
+                </a>
+            </form>
+        </div>
+        <div class="actions">
+            <a href="{% url 'add_url' %}" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Thêm mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Cột 1</th>
+                    <th>Cột 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if items %}
+                    {% for item in items %}
+                    <tr>
+                        <td><strong class="id-highlight">{{ item.id }}</strong></td>
+                        <td>{{ item.name }}</td>
+                        <td class="table-cell-center">Center</td>
+                        <td class="table-cell-right">Right</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'view_url' pk=item.pk %}" class="btn-icon" title="Xem">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <a href="{% url 'edit_url' pk=item.pk %}" class="btn-icon" title="Sửa">
+                                    <i class="fa-solid fa-edit"></i>
+                                </a>
+                                <a href="{% url 'delete_url' pk=item.pk %}" class="btn-icon btn-danger" title="Xóa">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-inbox"></i>
+                                <p>Không có dữ liệu</p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/[page-name].js' %}"></script>
+{% endblock %}
+

@@ -1,0 +1,142 @@
+/* ============================================
+   HELPERS.CSS - Helper Classes & Utilities
+   ============================================ */
+
+/* Link Styles */
+.link-back {
+    text-decoration: none;
+    color: inherit;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.link-back:hover {
+    color: var(--primary-color);
+}
+
+/* Text Utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-bold {
+    font-weight: 700;
+}
+
+.text-primary {
+    color: #2563eb;
+}
+
+.text-muted {
+    color: #94a3b8;
+}
+
+/* Spacing */
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 2rem; }
+
+/* Display */
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+
+/* Form Layout */
+.form-inline {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Table Cell Alignment */
+.table-cell-center {
+    text-align: center;
+}
+
+.table-cell-right {
+    text-align: right;
+}
+
+/* Text Sizes */
+.text-sm {
+    font-size: 0.85em;
+}
+
+.text-xs {
+    font-size: 0.75em;
+}
+
+/* Building/Room Info */
+.building-name {
+    font-weight: 600;
+}
+
+.room-number {
+    font-size: 0.85em;
+    color: #64748b;
+}
+
+/* Invoice/Expense ID */
+.id-highlight {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* Empty/Muted Text */
+.text-empty {
+    color: #94a3b8;
+}
+
+/* Filter Arrow */
+.filter-arrow {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Select Widths */
+.select-building {
+    min-width: 150px;
+}
+
+.select-user {
+    min-width: 180px;
+}
+
+/* Form Inline */
+.form-inline-form {
+    display: inline;
+}
+
+/* Price Highlight */
+.price-highlight {
+    font-weight: 700;
+    color: #2563eb;
+    font-size: 18px;
+}
+
