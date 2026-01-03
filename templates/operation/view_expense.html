@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chi tiết chi phí {{ expense.expense_id }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/operation.css' %}">
+{% endblock %}
+
+{% block header_icon %}
+<a href="{% url 'get_all_expenses' %}" class="link-back">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
+<i class="fa-solid fa-wallet"></i>
+{% endblock %}
+
+{% block header_title %}Chi tiết chi phí vận hành{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-header">
+        <h2>Chi phí {{ expense.expense_id }}</h2>
+        <span class="status-badge-large status-{{ expense.status }}">
+            {{ expense.get_status_display }}
+        </span>
+    </div>
+
+    <!-- Section: Thông tin chi phí -->
+    <div class="info-section">
+        <h3><i class="fa-solid fa-file-lines"></i> Thông tin chi phí</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Mã chi phí</label>
+                <span>{{ expense.expense_id }}</span>
+            </div>
+            <div class="info-item">
+                <label>Nội dung</label>
+                <span>{{ expense.expense_title }}</span>
+            </div>
+            <div class="info-item">
+                <label>Loại chi phí</label>
+                <span>{{ expense.get_category_type_display }}</span>
+            </div>
+            <div class="info-item">
+                <label>Ngày chi</label>
+                <span>{{ expense.date|date:"d/m/Y" }}</span>
+            </div>
+            <div class="info-item">
+                <label>Số lượng</label>
+                <span>{{ expense.count }}</span>
+            </div>
+            <div class="info-item">
+                <label>Đơn giá</label>
+                <span>{{ expense.amount|floatformat:0 }} VNĐ</span>
+            </div>
+            <div class="info-item">
+                <label>Tổng tiền</label>
+                <span class="price-highlight">{{ expense.total_amount|floatformat:0 }} VNĐ</span>
+            </div>
+            <div class="info-item">
+                <label>Trạng thái</label>
+                <span>{{ expense.get_status_display }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Thông tin liên quan -->
+    <div class="info-section">
+        <h3><i class="fa-solid fa-building"></i> Thông tin liên quan</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <label>Tòa nhà</label>
+                <span>{{ expense.building.name }}</span>
+            </div>
+            <div class="info-item">
+                <label>Người ghi nhận</label>
+                <span>
+                    {% if expense.recorded_by %}
+                        {{ expense.recorded_by.get_full_name|default:expense.recorded_by.username }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-item full-width">
+                <label>Ghi chú</label>
+                <span>{{ expense.description|default:"--" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <a href="{% url 'get_all_expenses' %}" class="btn-secondary">Quay lại</a>
+        <a href="{% url 'edit_expense' pk=expense.pk %}" class="btn-primary">
+            <i class="fa-solid fa-edit"></i> Chỉnh sửa
+        </a>
+        <a href="{% url 'delete_expense' pk=expense.pk %}" class="btn-danger">
+            <i class="fa-solid fa-trash"></i> Xóa
+        </a>
+    </div>
+</div>
+{% endblock %}
+

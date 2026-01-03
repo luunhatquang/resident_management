@@ -1,0 +1,10 @@
+<!-- Notification Bell Component -->
+<div class="notification-bell">
+    <a href="{% url 'get_all_notifications' %}" class="notification-link">
+        <i class="fa-regular fa-bell"></i>
+        {% if unread_count and unread_count > 0 %}
+        <span class="badge notification-badge">{{ unread_count }}</span>
+        {% endif %}
+    </a>
+</div>
+

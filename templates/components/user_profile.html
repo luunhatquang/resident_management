@@ -1,0 +1,20 @@
+<!-- User Profile Component -->
+<a href="{% url 'profile' %}" class="user-info-link">
+    <div class="user-info">
+        <div class="user-name">
+            {{ user.get_full_name|default:user.username }}
+            <i class="fa-solid fa-pen-to-square user-edit-icon"></i>
+        </div>
+        <div class="user-role">
+            {% if user.is_superuser %}Quản trị viên{% else %}Nhân viên{% endif %}
+        </div>
+    </div>
+    {% if user.profile and user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" class="avatar" alt="Avatar">
+    {% else %}
+        <div class="avatar avatar-placeholder">
+            <i class="fa-solid fa-user"></i>
+        </div>
+    {% endif %}
+</a>
+

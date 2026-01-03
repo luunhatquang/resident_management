@@ -14,7 +14,6 @@ from .tasks import check_expiring_contracts
 def getAllNotifications(request):
     notifications = Notification.objects.all()
     
-    # Stats
     total = notifications.count()
     unread = notifications.filter(is_read=False).count()
     high_priority = notifications.filter(priority='high').count()
@@ -30,6 +29,7 @@ def getAllNotifications(request):
     return render(request, 'notifications.html', context)
 
 
+# API Views (Class-based views không dùng @login_required decorator)
 class NotificationListView(generics.ListAPIView):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
@@ -44,6 +44,7 @@ class NotificationListView(generics.ListAPIView):
     @extend_schema(tags=["Notification"], parameters=[OpenApiParameter(name='type', type=str)])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
 
 class ManualTriggerNotificationView(APIView):
     @extend_schema(tags=["Notification"], request=None, responses={202: None})

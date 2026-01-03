@@ -4,85 +4,13 @@
 {% block title %}Chi tiết hợp đồng {{ contract.contract_id }}{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/contracts.css' %}">
-    <style>
-        .detail-container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 25px;
-        }
-        .detail-header h2 {
-            font-size: 20px;
-            color: var(--primary-color);
-            margin: 0;
-        }
-        .info-section {
-            margin-bottom: 30px;
-        }
-        .info-section h3 {
-            font-size: 16px;
-            color: var(--text-main);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .info-section h3 i {
-            color: var(--primary-color);
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .info-item label {
-            font-size: 12px;
-            color: #64748b;
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-        .info-item span {
-            font-size: 15px;
-            color: var(--text-main);
-            font-weight: 500;
-        }
-        .status-badge-large {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .detail-actions {
-            margin-top: 30px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-    </style>
+<link rel="stylesheet" href="{% static 'css/contracts.css' %}">
 {% endblock %}
 
 {% block header_icon %}
-<a href="{% url 'contracts' %}" style="text-decoration: none; color: inherit; margin-right: 10px;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
+<a href="{% url 'contracts' %}" class="link-back">
+    <i class="fa-solid fa-arrow-left"></i>
+</a>
 <i class="fa-solid fa-file-signature"></i>
 {% endblock %}
 {% block header_title %}Chi tiết hợp đồng{% endblock %}
@@ -196,8 +124,8 @@
                 </div>
 
                 <div class="detail-actions">
-                    <a href="{% url 'contracts' %}" class="btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Quay lại</a>
-        <a href="{% url 'update_contract' contract_id=contract.id %}" class="btn-primary" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                    <a href="{% url 'contracts' %}" class="btn-secondary">Quay lại</a>
+                    <a href="{% url 'contract_edit' pk=contract.id %}" class="btn-primary">
                         <i class="fa-solid fa-edit"></i> Chỉnh sửa
                     </a>
                 </div>
