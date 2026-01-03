@@ -4,7 +4,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages as message
 from django.db.models import Q
-from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.utils.timezone import now
+import json
 from .models import Resident
 from .form import ResidentForm
 
@@ -16,12 +19,12 @@ def residents_view(request):
     
     # Đếm thống kê
     total = residents.count()
+    living_total = residents.filter(status='living').count()
     
     # Cư dân mới trong tháng này (tức là created_at trong tháng)
-    from datetime import timedelta, datetime
-    from django.utils.timezone import now
     this_month = now().date().replace(day=1)
     new_residents_this_month = residents.filter(created_at__gte=this_month).count()
+    living_new_residents_this_month = residents.filter(status='living', created_at__gte=this_month).count()
     
     # Cư dân chuyển đi trong tháng (hợp đồng kết thúc trong tháng)
     # from resident_manage.apps.contract.models import Contract
@@ -35,47 +38,44 @@ def residents_view(request):
     # Tìm kiếm
     search_keyword = request.GET.get('search', '').strip()
     if search_keyword:
+        # Tìm kiếm theo display name của status và relationship
+        status_q = Q()
+        for key, display in Resident.STATUS_CHOICES:
+            if search_keyword.lower() in display.lower():
+                status_q |= Q(status=key)
+        
+        relationship_q = Q()
+        for key, display in Resident.RELATIONSHIP_CHOICES:
+            if search_keyword.lower() in display.lower():
+                relationship_q |= Q(relationship=key)
+        
         residents = residents.filter(
             Q(first_name__icontains=search_keyword) |
             Q(last_name__icontains=search_keyword) |
             Q(citizen_id__icontains=search_keyword) |
             Q(email__icontains=search_keyword) |
-            Q(phone_number__icontains=search_keyword)
+            Q(phone_number__icontains=search_keyword) |
+            Q(address__icontains=search_keyword) |
+            status_q |
+            relationship_q |
+            Q(building__name__icontains=search_keyword) |
+            Q(room__room_number__icontains=search_keyword)
         )
     
-    # Filter theo địa chỉ
-    address_filter = request.GET.get('address', '').strip()
-    if address_filter:
-        residents = residents.filter(address__icontains=address_filter)
-    
-    # Filter theo quan hệ
-    relationship_filter = request.GET.get('relationship', '').strip()
-    if relationship_filter:
-        residents = residents.filter(relationship=relationship_filter)
-    
-    # Filter theo căn hộ
-    room_filter = request.GET.get('room', '').strip()
-    if room_filter:
-        residents = residents.filter(room__number__icontains=room_filter)
-    
-    # Filter theo ngày ký hợp đồng
-    sign_date_from = request.GET.get('sign_date_from', '').strip()
-    sign_date_to = request.GET.get('sign_date_to', '').strip()
-    if sign_date_from:
-        residents = residents.filter(contracts__sign_date__gte=sign_date_from)
-    if sign_date_to:
-        residents = residents.filter(contracts__sign_date__lte=sign_date_to)
+    # Filter theo trạng thái
+    status_filter = request.GET.get('status', '').strip()
+    if status_filter and status_filter in dict(Resident.STATUS_CHOICES):
+        residents = residents.filter(status=status_filter)
     
     context = {
-        'residents': residents.distinct() if (address_filter or relationship_filter or room_filter or sign_date_from or sign_date_to) else residents,
+        'residents': residents,
         'search_keyword': search_keyword,
-        'address_filter': address_filter,
-        'relationship_filter': relationship_filter,
-        'room_filter': room_filter,
-        'sign_date_from': sign_date_from,
-        'sign_date_to': sign_date_to,
+        'status_filter': status_filter,
+        'status_choices': Resident.STATUS_CHOICES,
         'total': total,
+        'living_total': living_total,
         'new_residents_this_month': new_residents_this_month,
+        'living_new_residents_this_month': living_new_residents_this_month,
     }
     return render(request, 'residents.html', context)
 
@@ -137,3 +137,25 @@ def resident_delete_view(request, pk):
         return redirect('residents')
     
     return redirect('residents')
+
+
+@login_required
+@require_http_methods(["POST", "PATCH"])
+def resident_update_status_view(request, pk):
+    """Cập nhật trạng thái cư dân"""
+    resident = get_object_or_404(Resident, pk=pk)
+    
+    try:
+        data = json.loads(request.body)
+        status = data.get('status')
+        
+        if status and status in dict(Resident.STATUS_CHOICES):
+            resident.status = status
+            resident.save()
+            return JsonResponse({'success': True, 'message': 'Cập nhật trạng thái thành công'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Trạng thái không hợp lệ'}, status=400)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Dữ liệu không hợp lệ'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
