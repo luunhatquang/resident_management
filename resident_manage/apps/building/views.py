@@ -34,7 +34,8 @@ def getAllBuildings(request):
     # Tính tổng phòng (xử lý trường hợp None nếu DB rỗng)
     # total_rooms_agg = Building.objects.aggregate(Sum('total_rooms'))
     # total_rooms = total_rooms_agg['total_rooms__sum'] if total_rooms_agg['total_rooms__sum'] else 0
-    total_rooms = Room.objects.count();
+    # total_rooms = Room.objects.count();
+    total_rooms = Room.objects.filter(building__status='active').count()
     total_availble_rooms = Room.objects.filter(status = "active").count();
 
     # --- PHẦN 2: LỌC DANH SÁCH HIỂN THỊ (Bị ảnh hưởng bởi bộ lọc) ---
