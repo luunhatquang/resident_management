@@ -14,8 +14,6 @@ function applyFilters() {
     
     if (statusFilter) params.set('status', statusFilter);
     if (searchText) params.set('search', searchText);
-
-
     
     // Redirect
     const url = params.toString() ? `?${params.toString()}` : window.location.pathname;

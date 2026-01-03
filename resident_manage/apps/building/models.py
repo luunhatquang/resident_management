@@ -8,8 +8,16 @@ class Building(BaseModel):
     name = models.CharField(max_length=255, verbose_name="Tên tòa nhà")
     address = models.TextField(verbose_name="Địa chỉ")
     total_floors = models.PositiveIntegerField(verbose_name="Tổng số tầng", null=True, blank=True)
-    total_rooms = models.PositiveIntegerField(verbose_name="Tổng số phòng", null=True, blank=True)
-    total_availble_rooms = models.PositiveIntegerField(verbose_name="Số phòng còn trống", null=True, blank=True)   
+    
+    # total_rooms = models.PositiveIntegerField(verbose_name="Tổng số phòng", null=True, blank=True)
+    # total_availble_rooms = models.PositiveIntegerField(verbose_name="Số phòng còn trống", null=True, blank=True)   
+    @property
+    def total_rooms(self):
+        return self.rooms.count() 
+
+    @property
+    def total_available_rooms(self):
+        return self.rooms.filter(status='available').count()
 
 
     TYPE_STATUS = [
