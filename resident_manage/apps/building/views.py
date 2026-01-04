@@ -49,7 +49,7 @@ def getAllBuildings(request):
         buildings = buildings.filter(status='inactive')
 
     # Tìm kiếm
-    search_query = request.GET.get('q')
+    search_query = request.GET.get('search')
     if search_query:
         search_query = search_query.strip()
         buildings = buildings.filter(
