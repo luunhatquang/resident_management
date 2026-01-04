@@ -61,7 +61,7 @@
         
 
         <input type="text" 
-            id="search-input" class="search-input"
+            id="search-input" class="search-input" name="search"
             placeholder="🔍 Tìm tên tòa nhà, mã..." 
             value="{{ request.GET.search|default:'' }}" 
             onkeypress="if(event.key==='Enter') applyFilters()">
