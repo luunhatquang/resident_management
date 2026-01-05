@@ -16,13 +16,13 @@ function toggleFilters() {
  */
 function applyFilters() {
     const searchText = document.getElementById('search-input').value.trim();
-    const statusFilter = document.getElementById('status-filter').value.trim();
+    // const statusFilter = document.getElementById('status-filter').value.trim();
     
     // Build URL với query params
     const params = new URLSearchParams();
     
     if (searchText) params.set('search', searchText);
-    if (statusFilter) params.set('status', statusFilter);
+    // if (statusFilter) params.set('status', statusFilter);
     
     // Redirect
     const url = params.toString() ? `?${params.toString()}` : window.location.pathname;
