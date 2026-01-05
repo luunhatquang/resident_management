@@ -184,3 +184,8 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour=0, minute=0),
     },
 }
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
