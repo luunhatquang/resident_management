@@ -63,14 +63,14 @@ def residents_view(request):
         )
     
     # Filter theo trạng thái
-    status_filter = request.GET.get('status', '').strip()
-    if status_filter and status_filter in dict(Resident.STATUS_CHOICES):
-        residents = residents.filter(status=status_filter)
+    # status_filter = request.GET.get('status', '').strip()
+    # if status_filter and status_filter in dict(Resident.STATUS_CHOICES):
+    #     residents = residents.filter(status=status_filter)
     
     context = {
         'residents': residents,
         'search_keyword': search_keyword,
-        'status_filter': status_filter,
+        # 'status_filter': status_filter,
         'status_choices': Resident.STATUS_CHOICES,
         'total': total,
         'living_total': living_total,
