@@ -60,3 +60,5 @@ coverage.xml
 .dmypy.json
 dmypy.json
 
+local_settings.py
+
